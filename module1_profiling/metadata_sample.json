@@ -1,0 +1,272 @@
+{
+  "n_rows_profiled": 100000,
+  "n_columns": 8,
+  "columns": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "fields": {
+    "InvoiceNo": {
+      "column": "InvoiceNo",
+      "inferred_dtype": "string",
+      "semantic_type": "invoice_id",
+      "semantic_description": "Transaction/invoice identifier; a leading 'C' prefix denotes a cancelled transaction rather than a distinct order.",
+      "is_mixed_type": true,
+      "mixed_type_detail": {
+        "reason": "mostly numeric (97.9%) with 2077 text value(s) mixed in (e.g. C489449, C489459, C489476); includes 2077 cancellation-style 'C'-prefixed code(s)",
+        "n_numeric_like": 97923,
+        "n_text": 2077,
+        "numeric_ratio": 0.9792,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 2077,
+        "text_examples": [
+          "C489449",
+          "C489459",
+          "C489476",
+          "C489503",
+          "C489504"
+        ]
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 4976,
+      "sample_values": [
+        "489434",
+        "489434",
+        "489434",
+        "489434",
+        "489434"
+      ]
+    },
+    "StockCode": {
+      "column": "StockCode",
+      "inferred_dtype": "string",
+      "semantic_type": "product_id (SKU)",
+      "semantic_description": "Product stock-keeping code; alphanumeric - numeric codes with letter suffixes (e.g. '85123A') and service codes ('POST', 'DOT', 'M', 'BANK CHARGES') appear alongside plain numbers.",
+      "is_mixed_type": true,
+      "mixed_type_detail": {
+        "reason": "mostly numeric (82.8%) with 17205 text value(s) mixed in (e.g. 79323P, 79323W, 48173C); includes 22 cancellation-style 'C'-prefixed code(s)",
+        "n_numeric_like": 82795,
+        "n_text": 17205,
+        "numeric_ratio": 0.8279,
+        "n_digit_core_with_letter_suffix": 16754,
+        "n_cancelled_style_prefix": 22,
+        "text_examples": [
+          "79323P",
+          "79323W",
+          "48173C",
+          "35004B",
+          "84596F"
+        ]
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 4014,
+      "sample_values": [
+        "85048",
+        "79323P",
+        "79323W",
+        "22041",
+        "21232"
+      ]
+    },
+    "Description": {
+      "column": "Description",
+      "inferred_dtype": "string",
+      "semantic_type": "product_description",
+      "semantic_description": "Free-text name/description of the product.",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "minority class too small to be structural (1/99592)",
+        "n_numeric_like": 1,
+        "n_text": 99591,
+        "numeric_ratio": 0.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": [
+          "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+          "PINK CHERRY LIGHTS",
+          "WHITE CHERRY LIGHTS",
+          "RECORD FRAME 7\" SINGLE SIZE",
+          "STRAWBERRY CERAMIC TRINKET BOX"
+        ]
+      },
+      "n_rows": 100000,
+      "n_null": 408,
+      "null_pct": 0.41,
+      "n_unique": 4115,
+      "sample_values": [
+        "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+        "PINK CHERRY LIGHTS",
+        " WHITE CHERRY LIGHTS",
+        "RECORD FRAME 7\" SINGLE SIZE ",
+        "STRAWBERRY CERAMIC TRINKET BOX"
+      ]
+    },
+    "Quantity": {
+      "column": "Quantity",
+      "inferred_dtype": "int",
+      "semantic_type": "quantity",
+      "semantic_description": "Units sold (positive) or returned/cancelled (negative).",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "uniform type (all numeric-like or all text)",
+        "n_numeric_like": 100000,
+        "n_text": 0,
+        "numeric_ratio": 1.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": []
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 319,
+      "sample_values": [
+        "12",
+        "12",
+        "12",
+        "48",
+        "24"
+      ],
+      "min": -9360.0,
+      "max": 5184.0
+    },
+    "InvoiceDate": {
+      "column": "InvoiceDate",
+      "inferred_dtype": "date",
+      "semantic_type": "transaction_datetime",
+      "semantic_description": "Date and time the invoice was raised.",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "uniform type (all numeric-like or all text)",
+        "n_numeric_like": 0,
+        "n_text": 100000,
+        "numeric_ratio": 0.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": [
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:46:00",
+          "2009-12-01 09:06:00",
+          "2009-12-01 09:08:00",
+          "2009-12-01 09:24:00"
+        ]
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 4343,
+      "sample_values": [
+        "2009-12-01 07:45:00",
+        "2009-12-01 07:45:00",
+        "2009-12-01 07:45:00",
+        "2009-12-01 07:45:00",
+        "2009-12-01 07:45:00"
+      ],
+      "min": "2009-12-01 07:45:00",
+      "max": "2011-01-09 15:13:00"
+    },
+    "UnitPrice": {
+      "column": "UnitPrice",
+      "inferred_dtype": "float",
+      "semantic_type": "unit_price",
+      "semantic_description": "Price per unit in local currency (0.0 occurs for adjustments/giveaways).",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "uniform type (all numeric-like or all text)",
+        "n_numeric_like": 100000,
+        "n_text": 0,
+        "numeric_ratio": 1.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": []
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 505,
+      "sample_values": [
+        "6.95",
+        "6.75",
+        "6.75",
+        "2.1",
+        "1.25"
+      ],
+      "min": 0.0,
+      "max": 16888.02
+    },
+    "CustomerID": {
+      "column": "CustomerID",
+      "inferred_dtype": "int",
+      "semantic_type": "customer_id",
+      "semantic_description": "Anonymised customer identifier (ID, not a measure).",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "uniform type (all numeric-like or all text)",
+        "n_numeric_like": 68222,
+        "n_text": 0,
+        "numeric_ratio": 1.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": []
+      },
+      "n_rows": 100000,
+      "n_null": 31778,
+      "null_pct": 31.78,
+      "n_unique": 1720,
+      "sample_values": [
+        "13085",
+        "13085",
+        "13085",
+        "13085",
+        "13085"
+      ],
+      "min": 12346.0,
+      "max": 18287.0
+    },
+    "Country": {
+      "column": "Country",
+      "inferred_dtype": "string",
+      "semantic_type": "country",
+      "semantic_description": "Customer/delivery country (low-cardinality geography).",
+      "is_mixed_type": false,
+      "mixed_type_detail": {
+        "reason": "uniform type (all numeric-like or all text)",
+        "n_numeric_like": 0,
+        "n_text": 100000,
+        "numeric_ratio": 0.0,
+        "n_digit_core_with_letter_suffix": 0,
+        "n_cancelled_style_prefix": 0,
+        "text_examples": [
+          "United Kingdom",
+          "France",
+          "USA",
+          "Belgium",
+          "Australia"
+        ]
+      },
+      "n_rows": 100000,
+      "n_null": 0,
+      "null_pct": 0.0,
+      "n_unique": 28,
+      "sample_values": [
+        "United Kingdom",
+        "United Kingdom",
+        "United Kingdom",
+        "United Kingdom",
+        "United Kingdom"
+      ]
+    }
+  },
+  "source_file": "D:\\cadetx\\online_retail_II.xlsx",
+  "nrows_per_sheet": 50000
+}
