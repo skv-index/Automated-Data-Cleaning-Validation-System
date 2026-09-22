@@ -1,4 +1,8 @@
 {
+  "module": "module1_profiling",
+  "version": "1.0.0",
+  "source_file": "D:\\cadetx\\online_retail_II.xlsx",
+  "nrows_per_sheet": 50000,
   "n_rows": 100000,
   "n_columns": 8,
   "columns": [
@@ -11,276 +15,745 @@
     "CustomerID",
     "Country"
   ],
-  "missing_value_matrix": {
-    "per_column": {
+  "metadata": {
+    "n_rows_profiled": 100000,
+    "n_columns": 8,
+    "columns": [
+      "InvoiceNo",
+      "StockCode",
+      "Description",
+      "Quantity",
+      "InvoiceDate",
+      "UnitPrice",
+      "CustomerID",
+      "Country"
+    ],
+    "fields": {
       "InvoiceNo": {
-        "n_missing": 0,
-        "missing_pct": 0.0
+        "column": "InvoiceNo",
+        "inferred_dtype": "string",
+        "semantic_type": "invoice_id",
+        "semantic_description": "Transaction/invoice identifier; a leading 'C' prefix denotes a cancelled transaction rather than a distinct order.",
+        "is_mixed_type": true,
+        "mixed_type_detail": {
+          "reason": "mostly numeric (97.9%) with 2077 text value(s) mixed in (e.g. C489449, C489459, C489476); includes 2077 cancellation-style 'C'-prefixed code(s)",
+          "n_numeric_like": 97923,
+          "n_text": 2077,
+          "numeric_ratio": 0.9792,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 2077,
+          "text_examples": [
+            "C489449",
+            "C489459",
+            "C489476",
+            "C489503",
+            "C489504"
+          ]
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4976,
+        "sample_values": [
+          "489434",
+          "489434",
+          "489434",
+          "489434",
+          "489434"
+        ]
       },
       "StockCode": {
-        "n_missing": 0,
-        "missing_pct": 0.0
+        "column": "StockCode",
+        "inferred_dtype": "string",
+        "semantic_type": "product_id (SKU)",
+        "semantic_description": "Product stock-keeping code; alphanumeric - numeric codes with letter suffixes (e.g. '85123A') and service codes ('POST', 'DOT', 'M', 'BANK CHARGES') appear alongside plain numbers.",
+        "is_mixed_type": true,
+        "mixed_type_detail": {
+          "reason": "mostly numeric (82.8%) with 17205 text value(s) mixed in (e.g. 79323P, 79323W, 48173C); includes 22 cancellation-style 'C'-prefixed code(s)",
+          "n_numeric_like": 82795,
+          "n_text": 17205,
+          "numeric_ratio": 0.8279,
+          "n_digit_core_with_letter_suffix": 16754,
+          "n_cancelled_style_prefix": 22,
+          "text_examples": [
+            "79323P",
+            "79323W",
+            "48173C",
+            "35004B",
+            "84596F"
+          ]
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4014,
+        "sample_values": [
+          "85048",
+          "79323P",
+          "79323W",
+          "22041",
+          "21232"
+        ]
       },
       "Description": {
-        "n_missing": 408,
-        "missing_pct": 0.41
+        "column": "Description",
+        "inferred_dtype": "string",
+        "semantic_type": "product_description",
+        "semantic_description": "Free-text name/description of the product.",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "minority class too small to be structural (1/99592)",
+          "n_numeric_like": 1,
+          "n_text": 99591,
+          "numeric_ratio": 0.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": [
+            "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+            "PINK CHERRY LIGHTS",
+            "WHITE CHERRY LIGHTS",
+            "RECORD FRAME 7\" SINGLE SIZE",
+            "STRAWBERRY CERAMIC TRINKET BOX"
+          ]
+        },
+        "n_rows": 100000,
+        "n_null": 408,
+        "null_pct": 0.41,
+        "n_unique": 4115,
+        "sample_values": [
+          "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+          "PINK CHERRY LIGHTS",
+          " WHITE CHERRY LIGHTS",
+          "RECORD FRAME 7\" SINGLE SIZE ",
+          "STRAWBERRY CERAMIC TRINKET BOX"
+        ]
       },
       "Quantity": {
-        "n_missing": 0,
-        "missing_pct": 0.0
+        "column": "Quantity",
+        "inferred_dtype": "int",
+        "semantic_type": "quantity",
+        "semantic_description": "Units sold (positive) or returned/cancelled (negative).",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "uniform type (all numeric-like or all text)",
+          "n_numeric_like": 100000,
+          "n_text": 0,
+          "numeric_ratio": 1.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": []
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 319,
+        "sample_values": [
+          "12",
+          "12",
+          "12",
+          "48",
+          "24"
+        ],
+        "min": -9360.0,
+        "max": 5184.0
       },
       "InvoiceDate": {
-        "n_missing": 0,
-        "missing_pct": 0.0
+        "column": "InvoiceDate",
+        "inferred_dtype": "date",
+        "semantic_type": "transaction_datetime",
+        "semantic_description": "Date and time the invoice was raised.",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "uniform type (all numeric-like or all text)",
+          "n_numeric_like": 0,
+          "n_text": 100000,
+          "numeric_ratio": 0.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": [
+            "2009-12-01 07:45:00",
+            "2009-12-01 07:46:00",
+            "2009-12-01 09:06:00",
+            "2009-12-01 09:08:00",
+            "2009-12-01 09:24:00"
+          ]
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4343,
+        "sample_values": [
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00"
+        ],
+        "min": "2009-12-01 07:45:00",
+        "max": "2011-01-09 15:13:00"
       },
       "UnitPrice": {
-        "n_missing": 0,
-        "missing_pct": 0.0
+        "column": "UnitPrice",
+        "inferred_dtype": "float",
+        "semantic_type": "unit_price",
+        "semantic_description": "Price per unit in local currency (0.0 occurs for adjustments/giveaways).",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "uniform type (all numeric-like or all text)",
+          "n_numeric_like": 100000,
+          "n_text": 0,
+          "numeric_ratio": 1.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": []
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 505,
+        "sample_values": [
+          "6.95",
+          "6.75",
+          "6.75",
+          "2.1",
+          "1.25"
+        ],
+        "min": 0.0,
+        "max": 16888.02
       },
       "CustomerID": {
-        "n_missing": 31778,
-        "missing_pct": 31.78
+        "column": "CustomerID",
+        "inferred_dtype": "int",
+        "semantic_type": "customer_id",
+        "semantic_description": "Anonymised customer identifier (ID, not a measure).",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "uniform type (all numeric-like or all text)",
+          "n_numeric_like": 68222,
+          "n_text": 0,
+          "numeric_ratio": 1.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": []
+        },
+        "n_rows": 100000,
+        "n_null": 31778,
+        "null_pct": 31.78,
+        "n_unique": 1720,
+        "sample_values": [
+          "13085",
+          "13085",
+          "13085",
+          "13085",
+          "13085"
+        ],
+        "min": 12346.0,
+        "max": 18287.0
       },
       "Country": {
-        "n_missing": 0,
-        "missing_pct": 0.0
-      }
-    },
-    "per_row": {
-      "rows_with_0_missing": 68222,
-      "rows_with_1_missing": 31370,
-      "rows_with_2_or_more_missing": 408,
-      "max_missing_per_row": 2
-    },
-    "total_cells": 800000,
-    "total_missing_cells": 32186,
-    "total_missing_pct": 4.0232
-  },
-  "dtype_consistency": {
-    "InvoiceNo": {
-      "inferred_dtype": "string",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "StockCode": {
-      "inferred_dtype": "string",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "Description": {
-      "inferred_dtype": "string",
-      "n_checked": 99592,
-      "n_consistent": 99592,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "Quantity": {
-      "inferred_dtype": "int",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "InvoiceDate": {
-      "inferred_dtype": "date",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "UnitPrice": {
-      "inferred_dtype": "float",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "CustomerID": {
-      "inferred_dtype": "int",
-      "n_checked": 68222,
-      "n_consistent": 68222,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    },
-    "Country": {
-      "inferred_dtype": "string",
-      "n_checked": 100000,
-      "n_consistent": 100000,
-      "n_inconsistent": 0,
-      "consistency_rate": 1.0,
-      "inconsistent_examples": []
-    }
-  },
-  "cardinality": {
-    "InvoiceNo": {
-      "n_unique": 4976,
-      "cardinality_ratio": 0.04976,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "537434": 675,
-        "538071": 652,
-        "538349": 620,
-        "537638": 601,
-        "537237": 597
-      }
-    },
-    "StockCode": {
-      "n_unique": 4014,
-      "cardinality_ratio": 0.04014,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "85123A": 663,
-        "22111": 440,
-        "22086": 376,
-        "22112": 341,
-        "21485": 333
-      }
-    },
-    "Description": {
-      "n_unique": 4115,
-      "cardinality_ratio": 0.04115,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "WHITE HANGING HEART T-LIGHT HOLDER": 667,
-        "SCOTTIE DOG HOT WATER BOTTLE": 440,
-        "PAPER CHAIN KIT 50'S CHRISTMAS ": 376,
-        "CHOCOLATE HOT WATER BOTTLE": 341,
-        "STRAWBERRY CERAMIC TRINKET BOX": 324
-      }
-    },
-    "Quantity": {
-      "n_unique": 319,
-      "cardinality_ratio": 0.00319,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "1": 32663,
-        "2": 15268,
-        "12": 8872,
-        "6": 7467,
-        "3": 7230
-      }
-    },
-    "InvoiceDate": {
-      "n_unique": 4343,
-      "cardinality_ratio": 0.04343,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "2010-12-06 16:57:00": 675,
-        "2010-12-09 14:09:00": 652,
-        "2010-12-10 14:59:00": 621,
-        "2010-12-07 15:28:00": 601,
-        "2010-12-06 09:58:00": 597
-      }
-    },
-    "UnitPrice": {
-      "n_unique": 505,
-      "cardinality_ratio": 0.00505,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "1.25": 9036,
-        "0.85": 6803,
-        "2.95": 6373,
-        "1.65": 4808,
-        "3.75": 4327
-      }
-    },
-    "CustomerID": {
-      "n_unique": 1720,
-      "cardinality_ratio": 0.0172,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "17841.0": 1041,
-        "12748.0": 772,
-        "14606.0": 752,
-        "14911.0": 670,
-        "15311.0": 647
-      }
-    },
-    "Country": {
-      "n_unique": 28,
-      "cardinality_ratio": 0.00028,
-      "cardinality_level": "low (categorical-like)",
-      "top_values": {
-        "United Kingdom": 94188,
-        "Germany": 1273,
-        "EIRE": 1212,
-        "France": 1108,
-        "Spain": 439
+        "column": "Country",
+        "inferred_dtype": "string",
+        "semantic_type": "country",
+        "semantic_description": "Customer/delivery country (low-cardinality geography).",
+        "is_mixed_type": false,
+        "mixed_type_detail": {
+          "reason": "uniform type (all numeric-like or all text)",
+          "n_numeric_like": 0,
+          "n_text": 100000,
+          "numeric_ratio": 0.0,
+          "n_digit_core_with_letter_suffix": 0,
+          "n_cancelled_style_prefix": 0,
+          "text_examples": [
+            "United Kingdom",
+            "France",
+            "USA",
+            "Belgium",
+            "Australia"
+          ]
+        },
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 28,
+        "sample_values": [
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom"
+        ]
       }
     }
   },
-  "numeric_profile": {
-    "columns": [
-      "Quantity",
-      "UnitPrice"
+  "statistics": {
+    "missing_value_matrix": {
+      "per_column": {
+        "InvoiceNo": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        },
+        "StockCode": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        },
+        "Description": {
+          "n_missing": 408,
+          "missing_pct": 0.41
+        },
+        "Quantity": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        },
+        "InvoiceDate": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        },
+        "UnitPrice": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        },
+        "CustomerID": {
+          "n_missing": 31778,
+          "missing_pct": 31.78
+        },
+        "Country": {
+          "n_missing": 0,
+          "missing_pct": 0.0
+        }
+      },
+      "per_row": {
+        "rows_with_0_missing": 68222,
+        "rows_with_1_missing": 31370,
+        "rows_with_2_or_more_missing": 408,
+        "max_missing_per_row": 2
+      },
+      "total_cells": 800000,
+      "total_missing_cells": 32186,
+      "total_missing_pct": 4.0232
+    },
+    "dtype_consistency": {
+      "InvoiceNo": {
+        "inferred_dtype": "string",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "StockCode": {
+        "inferred_dtype": "string",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "Description": {
+        "inferred_dtype": "string",
+        "n_checked": 99592,
+        "n_consistent": 99592,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "Quantity": {
+        "inferred_dtype": "int",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "InvoiceDate": {
+        "inferred_dtype": "date",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "UnitPrice": {
+        "inferred_dtype": "float",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "CustomerID": {
+        "inferred_dtype": "int",
+        "n_checked": 68222,
+        "n_consistent": 68222,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      },
+      "Country": {
+        "inferred_dtype": "string",
+        "n_checked": 100000,
+        "n_consistent": 100000,
+        "n_inconsistent": 0,
+        "consistency_rate": 1.0,
+        "inconsistent_examples": []
+      }
+    },
+    "cardinality": {
+      "InvoiceNo": {
+        "n_unique": 4976,
+        "cardinality_ratio": 0.04976,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "537434": 675,
+          "538071": 652,
+          "538349": 620,
+          "537638": 601,
+          "537237": 597
+        }
+      },
+      "StockCode": {
+        "n_unique": 4014,
+        "cardinality_ratio": 0.04014,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "85123A": 663,
+          "22111": 440,
+          "22086": 376,
+          "22112": 341,
+          "21485": 333
+        }
+      },
+      "Description": {
+        "n_unique": 4115,
+        "cardinality_ratio": 0.04115,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "WHITE HANGING HEART T-LIGHT HOLDER": 667,
+          "SCOTTIE DOG HOT WATER BOTTLE": 440,
+          "PAPER CHAIN KIT 50'S CHRISTMAS ": 376,
+          "CHOCOLATE HOT WATER BOTTLE": 341,
+          "STRAWBERRY CERAMIC TRINKET BOX": 324
+        }
+      },
+      "Quantity": {
+        "n_unique": 319,
+        "cardinality_ratio": 0.00319,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "1": 32663,
+          "2": 15268,
+          "12": 8872,
+          "6": 7467,
+          "3": 7230
+        }
+      },
+      "InvoiceDate": {
+        "n_unique": 4343,
+        "cardinality_ratio": 0.04343,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "2010-12-06 16:57:00": 675,
+          "2010-12-09 14:09:00": 652,
+          "2010-12-10 14:59:00": 621,
+          "2010-12-07 15:28:00": 601,
+          "2010-12-06 09:58:00": 597
+        }
+      },
+      "UnitPrice": {
+        "n_unique": 505,
+        "cardinality_ratio": 0.00505,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "1.25": 9036,
+          "0.85": 6803,
+          "2.95": 6373,
+          "1.65": 4808,
+          "3.75": 4327
+        }
+      },
+      "CustomerID": {
+        "n_unique": 1720,
+        "cardinality_ratio": 0.0172,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "17841.0": 1041,
+          "12748.0": 772,
+          "14606.0": 752,
+          "14911.0": 670,
+          "15311.0": 647
+        }
+      },
+      "Country": {
+        "n_unique": 28,
+        "cardinality_ratio": 0.00028,
+        "cardinality_level": "low (categorical-like)",
+        "top_values": {
+          "United Kingdom": 94188,
+          "Germany": 1273,
+          "EIRE": 1212,
+          "France": 1108,
+          "Spain": 439
+        }
+      }
+    },
+    "numeric_profile": {
+      "columns": [
+        "Quantity",
+        "UnitPrice"
+      ],
+      "pearson_correlation": {
+        "Quantity": {
+          "Quantity": 1.0,
+          "UnitPrice": -0.0046
+        },
+        "UnitPrice": {
+          "Quantity": -0.0046,
+          "UnitPrice": 1.0
+        }
+      },
+      "distributions": {
+        "Quantity": {
+          "count": 100000,
+          "mean": 9.2897,
+          "median": 2.0,
+          "std": 58.7096,
+          "min": -9360.0,
+          "max": 5184.0,
+          "q1": 1.0,
+          "q3": 8.0,
+          "iqr": 7.0,
+          "iqr_lower": -9.5,
+          "iqr_upper": 18.5,
+          "n_iqr_outliers": 11052,
+          "outlier_pct": 11.05,
+          "n_negative": 2263,
+          "n_zero": 0,
+          "skew": -15.2076,
+          "kurtosis": 8161.1902
+        },
+        "UnitPrice": {
+          "count": 100000,
+          "mean": 5.3742,
+          "median": 2.55,
+          "std": 118.7212,
+          "min": 0.0,
+          "max": 16888.02,
+          "q1": 1.25,
+          "q3": 4.65,
+          "iqr": 3.4,
+          "iqr_lower": -3.85,
+          "iqr_upper": 9.75,
+          "n_iqr_outliers": 6634,
+          "outlier_pct": 6.63,
+          "n_negative": 0,
+          "n_zero": 595,
+          "skew": 117.4622,
+          "kurtosis": 14648.3414
+        }
+      }
+    }
+  },
+  "flags": {
+    "suspicious_columns": [
+      {
+        "rule_id": "missing-high",
+        "category": "suspicious",
+        "severity": "warning",
+        "column": "CustomerID",
+        "message": "'CustomerID' is 31.8% missing - downstream joins/aggregations must handle gaps.",
+        "evidence": {
+          "missing_pct": 31.78
+        }
+      },
+      {
+        "rule_id": "negative-quantity",
+        "category": "suspicious",
+        "severity": "info",
+        "column": "Quantity",
+        "message": "Negative Quantity values present - expected for returns/cancellations; cleaning stage must decide whether to keep them.",
+        "evidence": {
+          "n_negative": 2263,
+          "min": -9360.0,
+          "pct": 2.26
+        }
+      },
+      {
+        "rule_id": "bulk-quantity",
+        "category": "suspicious",
+        "severity": "info",
+        "column": "Quantity",
+        "message": "30 rows with |Quantity| > 1000 - bulk orders or data-entry outliers.",
+        "evidence": {
+          "n_bulk": 30,
+          "min": -9360.0,
+          "max": 5184.0
+        }
+      },
+      {
+        "rule_id": "zero-price",
+        "category": "suspicious",
+        "severity": "warning",
+        "column": "UnitPrice",
+        "message": "Zero UnitPrice values present - likely adjustments/giveaways, not real prices.",
+        "evidence": {
+          "n_zero": 595,
+          "pct": 0.59
+        }
+      },
+      {
+        "rule_id": "extreme-price",
+        "category": "suspicious",
+        "severity": "info",
+        "column": "UnitPrice",
+        "message": "13 rows with UnitPrice > 1000.0 - verify against source system.",
+        "evidence": {
+          "n_extreme": 13,
+          "max": 16888.02
+        }
+      },
+      {
+        "rule_id": "cancelled-invoices",
+        "category": "suspicious",
+        "severity": "info",
+        "column": "InvoiceNo",
+        "message": "2077 (2.08%) rows are cancelled transactions ('C' prefix) - not distinct orders.",
+        "evidence": {
+          "n_cancelled": 2077
+        }
+      }
     ],
-    "pearson_correlation": {
-      "Quantity": {
-        "Quantity": 1.0,
-        "UnitPrice": -0.0046
+    "inconsistent_formats": [
+      {
+        "rule_id": "mixed-type",
+        "category": "format",
+        "severity": "warning",
+        "column": "InvoiceNo",
+        "message": "'InvoiceNo' mixes numeric and text codes (mostly numeric (97.9%) with 2077 text value(s) mixed in (e.g. C489449, C489459, C489476); includes 2077 cancellation-style 'C'-prefixed code(s)). Standardise before typing.",
+        "evidence": {
+          "text_examples": [
+            "C489449",
+            "C489459",
+            "C489476",
+            "C489503",
+            "C489504"
+          ],
+          "numeric_ratio": 0.9792
+        }
       },
-      "UnitPrice": {
-        "Quantity": -0.0046,
-        "UnitPrice": 1.0
-      }
-    },
-    "distributions": {
-      "Quantity": {
-        "count": 100000,
-        "mean": 9.2897,
-        "median": 2.0,
-        "std": 58.7096,
-        "min": -9360.0,
-        "max": 5184.0,
-        "q1": 1.0,
-        "q3": 8.0,
-        "iqr": 7.0,
-        "iqr_lower": -9.5,
-        "iqr_upper": 18.5,
-        "n_iqr_outliers": 11052,
-        "outlier_pct": 11.05,
-        "n_negative": 2263,
-        "n_zero": 0,
-        "skew": -15.2076,
-        "kurtosis": 8161.1902
+      {
+        "rule_id": "mixed-type",
+        "category": "format",
+        "severity": "warning",
+        "column": "StockCode",
+        "message": "'StockCode' mixes numeric and text codes (mostly numeric (82.8%) with 17205 text value(s) mixed in (e.g. 79323P, 79323W, 48173C); includes 22 cancellation-style 'C'-prefixed code(s)). Standardise before typing.",
+        "evidence": {
+          "text_examples": [
+            "79323P",
+            "79323W",
+            "48173C",
+            "35004B",
+            "84596F"
+          ],
+          "numeric_ratio": 0.8279
+        }
       },
-      "UnitPrice": {
-        "count": 100000,
-        "mean": 5.3742,
-        "median": 2.55,
-        "std": 118.7212,
-        "min": 0.0,
-        "max": 16888.02,
-        "q1": 1.25,
-        "q3": 4.65,
-        "iqr": 3.4,
-        "iqr_lower": -3.85,
-        "iqr_upper": 9.75,
-        "n_iqr_outliers": 6634,
-        "outlier_pct": 6.63,
-        "n_negative": 0,
-        "n_zero": 595,
-        "skew": 117.4622,
-        "kurtosis": 14648.3414
+      {
+        "rule_id": "case-variants",
+        "category": "format",
+        "severity": "info",
+        "column": "StockCode",
+        "message": "'StockCode' has 90 value group(s) differing only by case - normalise during cleaning.",
+        "evidence": {
+          "example_groups": [
+            [
+              "79051A",
+              "79051a"
+            ],
+            [
+              "85036B",
+              "85036b"
+            ],
+            [
+              "84796A",
+              "84796a"
+            ]
+          ]
+        }
+      },
+      {
+        "rule_id": "padded-text",
+        "category": "format",
+        "severity": "warning",
+        "column": "Description",
+        "message": "'Description' has 18717 value(s) with leading/trailing whitespace - strip during cleaning.",
+        "evidence": {
+          "n_padded": 18717,
+          "examples": [
+            " WHITE CHERRY LIGHTS",
+            "RECORD FRAME 7\" SINGLE SIZE ",
+            "PINK DOUGHNUT TRINKET POT "
+          ]
+        }
+      },
+      {
+        "rule_id": "case-variants",
+        "category": "format",
+        "severity": "info",
+        "column": "Description",
+        "message": "'Description' has 31 value group(s) differing only by case - normalise during cleaning.",
+        "evidence": {
+          "example_groups": [
+            [
+              "FRYING PAN BLUE POLKADOT",
+              "FRYING PAN BLUE POLKADOT "
+            ],
+            [
+              "COLUMBIAN CANDLE ROUND",
+              "COLUMBIAN CANDLE ROUND "
+            ],
+            [
+              " ANIMAL STICKERS",
+              "ANIMAL STICKERS"
+            ]
+          ]
+        }
       }
+    ],
+    "pii_columns": [
+      {
+        "rule_id": "pii-direct",
+        "category": "pii",
+        "severity": "warning",
+        "column": "CustomerID",
+        "message": "'CustomerID' looks like customer identifier - singles out an individual (matched 'customerid'). anonymise/hash before sharing; never use as a model feature raw.",
+        "evidence": {
+          "pii_type": "direct",
+          "matched_pattern": "customerid",
+          "semantic_type": "customer_id"
+        }
+      },
+      {
+        "rule_id": "pii-quasi",
+        "category": "pii",
+        "severity": "info",
+        "column": "Country",
+        "message": "'Country' looks like geography - quasi-identifier in combination (matched 'country'). safe to keep for grouping, but watch k-anonymity in small cells.",
+        "evidence": {
+          "pii_type": "quasi",
+          "matched_pattern": "country",
+          "semantic_type": "country"
+        }
+      }
+    ],
+    "summary": {
+      "n_flags": 13,
+      "n_critical": 0,
+      "n_warning": 6,
+      "n_info": 7
     }
   },
   "visuals": {
     "missing_heatmap": "D:\\cadetx\\module1_profiling\\visuals\\missing_heatmap.png",
     "outlier_distribution": "D:\\cadetx\\module1_profiling\\visuals\\outlier_distribution.png",
     "correlation_heatmap": "D:\\cadetx\\module1_profiling\\visuals\\correlation_heatmap.png"
-  },
-  "source_file": "D:\\cadetx\\online_retail_II.xlsx",
-  "nrows_per_sheet": 50000
+  }
 }
