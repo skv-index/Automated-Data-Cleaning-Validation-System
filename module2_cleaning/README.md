@@ -1,14 +1,12 @@
-# Module 2 — Schema Inference (`module2_cleaning`)
+# Module 2 — Cleaning (`module2_cleaning`)
 
-Defines what "correct" looks like for the Online Retail II dataset *before*
-anything is cleaned, and packages it into the Module 2 contract:
-**`expected_schema.json`**.
-
-Built in Sprint 4:
+Defines what "correct" looks like for the Online Retail II dataset, then
+fixes the data to match. Two artefacts:
 
 | Sprint | File | Contents |
 |---|---|---|
 | 4 — Schema inference | `schema_inference.py` | Reads Sprint 3's `profiling_report.json`, derives expected type / ranges / formats per column → `expected_schema.json` |
+| 5 — Cleaning pipeline | `cleaner.py` | Enforces the schema: normalize → impute (statistical + KNN) → dedupe (exact + fuzzy); proves it on a sample → `cleaning_sample_diff.json` |
 
 ## Calling the engine
 
@@ -133,6 +131,69 @@ preserve, e.g. return quantities).
   (InvoiceNo 0, StockCode 0, InvoiceDate 0 mismatches; Quantity integer;
   UnitPrice ≥ 0 with ≤ 2 dp; CustomerID whole and in-block; all 28
   countries normalise into the reference set).
+
+## Sprint 5 — Cleaning pipeline (`cleaner.py`)
+
+`cleaner.py` enforces the Sprint 4 contract in three stages:
+
+1. **Normalize** (`normalize_text`) — strip + collapse whitespace and
+   upper-case StockCode/Description, title-case + alias-map Country
+   (`EIRE`→Ireland, `USA`→United States, …), parse InvoiceDate to
+   datetime64 (`%Y-%m-%d %H:%M:%S`, tz-naive).
+2. **Impute** (`impute_missing`) — two strategies:
+   - `statistical` (default): Description ← StockCode lookup (mode per
+     StockCode, global-mode fallback); numerics ← median; CustomerID
+     nulls **preserved** (structural guest orders, schema rv-4).
+   - `knn`: `sklearn.impute.KNNImputer` (k=5, distance-weighted) over the
+     numeric measures. Chosen over regression/iterative imputation:
+     non-parametric, preserves local structure, no distributional
+     assumptions. CustomerID is excluded — imputing it would fabricate
+     identities. This dataset has no numeric gaps, so on real data it is
+     a verified no-op; `verify_knn_imputer` proves the ML path by masked
+     reconstruction on a copy (MAE ≈ 15.94 on Quantity, seed-pinned).
+3. **Dedupe** (`detect_exact_duplicates` / `detect_near_duplicates`) —
+   byte-identical rows removed (keep first; 1,082 on the full frame);
+   near-duplicates (same StockCode, difflib ratio ≥ 0.90 on normalized
+   Description, e.g. SPONGE/SPUNGE) flagged for review, **never
+   auto-merged**.
+
+```python
+from module2_cleaning.cleaner import (
+    clean_dataframe, build_sample_diff, run_cleaning,
+    normalize_text, impute_missing, verify_knn_imputer,
+    detect_exact_duplicates, detect_near_duplicates,
+)
+
+cleaned, log = clean_dataframe(df, schema)   # full pipeline + stage log
+diff: dict = build_sample_diff(df, schema)   # 13-row before/after proof
+diff: dict = run_cleaning()                  # loads xlsx + schema, saves diff
+```
+
+CLI equivalents:
+
+```bash
+python module2_cleaning/cleaner.py
+python module2_cleaning/cleaner.py --input online_retail_II.xlsx --nrows-per-sheet 50000
+python module2_cleaning/cleaner.py --output module2_cleaning/cleaning_sample_diff.json
+python module2_cleaning/cleaner.py --full-out cleaned.csv  # also writes full cleaned CSV + .log.json
+```
+
+### `cleaning_sample_diff.json`
+
+13 deterministically-selected real rows covering every defect class:
+
+| Status | Rows | What it proves |
+|---|---|---|
+| `imputed` (3) | 3114, 3161 via StockCode lookup; 470 via global-mode fallback | Missing Descriptions fixed |
+| `removed-duplicate` (1) | 385 (twin 362 kept) | Exact duplicates removed |
+| `flagged-near-duplicate` (2) | 4157 SPUNGE vs 54026 SPONGE (group ng-1) | Fuzzy matches flagged, not merged |
+| `normalized` (5) | padding, `USA`→United States, `EIRE`→Ireland, lowercase SKU, mixed case | Text/casing/alias fixes |
+| `unchanged` (2) | clean control + kept twin | No collateral damage |
+
+Each record carries `before` / `after` snapshots, the `operations`
+applied (naming the schema rule), and per-row `status`; the header records
+the imputation choice note, the KNN masked-reconstruction scores, and the
+full-frame duplicate counts.
 
 ## Notes for downstream modules
 

@@ -1,0 +1,441 @@
+{
+  "module": "module2_cleaning",
+  "artifact": "cleaning_sample_diff",
+  "generated_at": "2026-09-26T12:00:42+00:00",
+  "source": {
+    "input": "online_retail_II.xlsx",
+    "nrows_per_sheet": 50000,
+    "n_rows": 100000
+  },
+  "imputation": {
+    "statistical": "Description <- StockCode lookup (mode per StockCode, global-mode fallback); numerics <- median; CustomerID nulls preserved (rv-4)",
+    "ml": {
+      "method": "sklearn.impute.KNNImputer",
+      "k": 5,
+      "weights": "distance",
+      "features": [
+        "Quantity",
+        "UnitPrice"
+      ],
+      "excluded": [
+        "CustomerID"
+      ],
+      "choice_note": "KNN chosen over regression/iterative imputation: non-parametric, preserves local structure, no distributional assumptions, single-pass and fast. CustomerID is excluded - imputing it would fabricate customer identities."
+    },
+    "ml_verification": {
+      "method": "KNNImputer(k=5, weights=distance)",
+      "features": [
+        "Quantity",
+        "UnitPrice"
+      ],
+      "n_rows_scored": 100000,
+      "n_masked": 5046,
+      "mask_frac": 0.05,
+      "random_state": 42,
+      "mae_masked_quantity": 15.9417,
+      "exact_match_rate": 0.1639,
+      "note": "self-test on a masked copy only; the real frame is never modified by verification"
+    }
+  },
+  "deduplication": {
+    "exact_duplicates_removed_full_frame": 1082,
+    "policy_exact": "removed (keep first)",
+    "policy_near": "flagged for review - never auto-merged"
+  },
+  "normalization": {
+    "stage": "normalize_text",
+    "columns": {
+      "StockCode": {
+        "operation": "strip + collapse-internal-whitespace + upper",
+        "n_changed": 1
+      },
+      "Description": {
+        "operation": "strip + collapse-internal-whitespace + upper",
+        "n_changed": 2
+      },
+      "Country": {
+        "operation": "strip + title-case + alias-map",
+        "n_changed": 2,
+        "n_aliased": 2,
+        "aliases_applied": [
+          "Eire->Ireland",
+          "Usa->United States"
+        ]
+      },
+      "InvoiceDate": {
+        "operation": "to_datetime (canonical '%Y-%m-%d %H:%M:%S', second resolution, tz-naive)",
+        "n_unparseable": 0
+      }
+    }
+  },
+  "rows": [
+    {
+      "row_id": 0,
+      "demo_role": "clean",
+      "status": "unchanged",
+      "before": {
+        "InvoiceNo": 489434,
+        "StockCode": 85048,
+        "Description": "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 07:45:00",
+        "UnitPrice": 6.95,
+        "CustomerID": 13085.0,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489434,
+        "StockCode": "85048",
+        "Description": "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 07:45:00",
+        "UnitPrice": 6.95,
+        "CustomerID": 13085.0,
+        "Country": "United Kingdom"
+      },
+      "operations": []
+    },
+    {
+      "row_id": 2,
+      "demo_role": "padded",
+      "status": "normalized",
+      "before": {
+        "InvoiceNo": 489434,
+        "StockCode": "79323W",
+        "Description": " WHITE CHERRY LIGHTS",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 07:45:00",
+        "UnitPrice": 6.75,
+        "CustomerID": 13085.0,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489434,
+        "StockCode": "79323W",
+        "Description": "WHITE CHERRY LIGHTS",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 07:45:00",
+        "UnitPrice": 6.75,
+        "CustomerID": 13085.0,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "normalize:Description strip+collapse+upper (' WHITE CHERRY LIGHTS' -> 'WHITE CHERRY LIGHTS')"
+      ]
+    },
+    {
+      "row_id": 126,
+      "demo_role": "country_alias",
+      "status": "normalized",
+      "before": {
+        "InvoiceNo": 489444,
+        "StockCode": "POST",
+        "Description": "POSTAGE",
+        "Quantity": 1,
+        "InvoiceDate": "2009-12-01 09:55:00",
+        "UnitPrice": 141.0,
+        "CustomerID": 12636.0,
+        "Country": "USA"
+      },
+      "after": {
+        "InvoiceNo": 489444,
+        "StockCode": "POST",
+        "Description": "POSTAGE",
+        "Quantity": 1,
+        "InvoiceDate": "2009-12-01 09:55:00",
+        "UnitPrice": 141.0,
+        "CustomerID": 12636.0,
+        "Country": "United States"
+      },
+      "operations": [
+        "normalize:Country title-case+alias ('USA' -> 'United States')"
+      ]
+    },
+    {
+      "row_id": 263,
+      "demo_role": "guest",
+      "status": "normalized",
+      "before": {
+        "InvoiceNo": 489464,
+        "StockCode": 21733,
+        "Description": "85123a mixed",
+        "Quantity": -96,
+        "InvoiceDate": "2009-12-01 10:52:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489464,
+        "StockCode": "21733",
+        "Description": "85123A MIXED",
+        "Quantity": -96,
+        "InvoiceDate": "2009-12-01 10:52:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "normalize:Description strip+collapse+upper ('85123a mixed' -> '85123A MIXED')",
+        "preserve:null CustomerID (structural guest order, schema rv-4)"
+      ]
+    },
+    {
+      "row_id": 362,
+      "demo_role": "exact_pair",
+      "status": "unchanged",
+      "before": {
+        "InvoiceNo": 489517,
+        "StockCode": 21913,
+        "Description": "VINTAGE SEASIDE JIGSAW PUZZLES",
+        "Quantity": 1,
+        "InvoiceDate": "2009-12-01 11:34:00",
+        "UnitPrice": 3.75,
+        "CustomerID": 16329.0,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489517,
+        "StockCode": "21913",
+        "Description": "VINTAGE SEASIDE JIGSAW PUZZLES",
+        "Quantity": 1,
+        "InvoiceDate": "2009-12-01 11:34:00",
+        "UnitPrice": 3.75,
+        "CustomerID": 16329.0,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "kept: first of exact-duplicate pair (row 385 removed)"
+      ]
+    },
+    {
+      "row_id": 385,
+      "demo_role": "exact_pair",
+      "status": "removed-duplicate",
+      "before": {
+        "InvoiceNo": 489517,
+        "StockCode": 21913,
+        "Description": "VINTAGE SEASIDE JIGSAW PUZZLES",
+        "Quantity": 1,
+        "InvoiceDate": "2009-12-01 11:34:00",
+        "UnitPrice": 3.75,
+        "CustomerID": 16329.0,
+        "Country": "United Kingdom"
+      },
+      "after": null,
+      "operations": [
+        "removed: exact duplicate of row 362 (kept first)"
+      ]
+    },
+    {
+      "row_id": 440,
+      "demo_role": "country_alias",
+      "status": "normalized",
+      "before": {
+        "InvoiceNo": 489520,
+        "StockCode": "35751C",
+        "Description": "PURPLE CURRENT CANDLE RING",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 11:41:00",
+        "UnitPrice": 0.75,
+        "CustomerID": 14911.0,
+        "Country": "EIRE"
+      },
+      "after": {
+        "InvoiceNo": 489520,
+        "StockCode": "35751C",
+        "Description": "PURPLE CURRENT CANDLE RING",
+        "Quantity": 12,
+        "InvoiceDate": "2009-12-01 11:41:00",
+        "UnitPrice": 0.75,
+        "CustomerID": 14911.0,
+        "Country": "Ireland"
+      },
+      "operations": [
+        "normalize:Country title-case+alias ('EIRE' -> 'Ireland')"
+      ]
+    },
+    {
+      "row_id": 470,
+      "demo_role": "null_unresolvable",
+      "status": "imputed",
+      "before": {
+        "InvoiceNo": 489521,
+        "StockCode": 21646,
+        "Description": null,
+        "Quantity": -50,
+        "InvoiceDate": "2009-12-01 11:44:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489521,
+        "StockCode": "21646",
+        "Description": "WHITE HANGING HEART T-LIGHT HOLDER",
+        "Quantity": -50,
+        "InvoiceDate": "2009-12-01 11:44:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "impute:Description <- global-mode fallback ('WHITE HANGING HEART T-LIGHT HOLDER')",
+        "preserve:null CustomerID (structural guest order, schema rv-4)"
+      ]
+    },
+    {
+      "row_id": 2533,
+      "demo_role": "lower_stockcode",
+      "status": "normalized",
+      "before": {
+        "InvoiceNo": 489600,
+        "StockCode": "72349b",
+        "Description": "SET/6 PURPLE BUTTERFLY T-LIGHTS",
+        "Quantity": 2,
+        "InvoiceDate": "2009-12-01 14:43:00",
+        "UnitPrice": 4.3,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489600,
+        "StockCode": "72349B",
+        "Description": "SET/6 PURPLE BUTTERFLY T-LIGHTS",
+        "Quantity": 2,
+        "InvoiceDate": "2009-12-01 14:43:00",
+        "UnitPrice": 4.3,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "normalize:StockCode strip+collapse+upper ('72349b' -> '72349B')",
+        "preserve:null CustomerID (structural guest order, schema rv-4)"
+      ]
+    },
+    {
+      "row_id": 3114,
+      "demo_role": "null_resolvable",
+      "status": "imputed",
+      "before": {
+        "InvoiceNo": 489655,
+        "StockCode": 20683,
+        "Description": null,
+        "Quantity": -44,
+        "InvoiceDate": "2009-12-01 17:26:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489655,
+        "StockCode": "20683",
+        "Description": "RAIN GIRL CHILDS UMBRELLA",
+        "Quantity": -44,
+        "InvoiceDate": "2009-12-01 17:26:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "impute:Description <- StockCode lookup ('RAIN GIRL CHILDS UMBRELLA')",
+        "preserve:null CustomerID (structural guest order, schema rv-4)"
+      ]
+    },
+    {
+      "row_id": 3161,
+      "demo_role": "null_resolvable",
+      "status": "imputed",
+      "before": {
+        "InvoiceNo": 489659,
+        "StockCode": 21350,
+        "Description": null,
+        "Quantity": 230,
+        "InvoiceDate": "2009-12-01 17:39:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489659,
+        "StockCode": "21350",
+        "Description": "GINGHAM HEART WREATH",
+        "Quantity": 230,
+        "InvoiceDate": "2009-12-01 17:39:00",
+        "UnitPrice": 0.0,
+        "CustomerID": null,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "impute:Description <- StockCode lookup ('GINGHAM HEART WREATH')",
+        "preserve:null CustomerID (structural guest order, schema rv-4)"
+      ]
+    },
+    {
+      "row_id": 4157,
+      "demo_role": "fuzzy_pair",
+      "status": "flagged-near-duplicate",
+      "before": {
+        "InvoiceNo": 489800,
+        "StockCode": 16012,
+        "Description": "FOOD/DRINK SPUNGE STICKERS",
+        "Quantity": 61,
+        "InvoiceDate": "2009-12-02 12:26:00",
+        "UnitPrice": 0.21,
+        "CustomerID": 17768.0,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 489800,
+        "StockCode": "16012",
+        "Description": "FOOD/DRINK SPUNGE STICKERS",
+        "Quantity": 61,
+        "InvoiceDate": "2009-12-02 12:26:00",
+        "UnitPrice": 0.21,
+        "CustomerID": 17768.0,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "flag:near-duplicate group ng-1 (review - never auto-merged)"
+      ]
+    },
+    {
+      "row_id": 54026,
+      "demo_role": "fuzzy_pair",
+      "status": "flagged-near-duplicate",
+      "before": {
+        "InvoiceNo": 536743,
+        "StockCode": 16012,
+        "Description": "FOOD/DRINK SPONGE STICKERS",
+        "Quantity": 24,
+        "InvoiceDate": "2010-12-02 13:32:00",
+        "UnitPrice": 0.21,
+        "CustomerID": 17964.0,
+        "Country": "United Kingdom"
+      },
+      "after": {
+        "InvoiceNo": 536743,
+        "StockCode": "16012",
+        "Description": "FOOD/DRINK SPONGE STICKERS",
+        "Quantity": 24,
+        "InvoiceDate": "2010-12-02 13:32:00",
+        "UnitPrice": 0.21,
+        "CustomerID": 17964.0,
+        "Country": "United Kingdom"
+      },
+      "operations": [
+        "flag:near-duplicate group ng-1 (review - never auto-merged)"
+      ]
+    }
+  ],
+  "summary": {
+    "n_rows": 13,
+    "by_status": {
+      "unchanged": 2,
+      "normalized": 5,
+      "removed-duplicate": 1,
+      "imputed": 3,
+      "flagged-near-duplicate": 2
+    }
+  }
+}
