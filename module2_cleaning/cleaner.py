@@ -322,8 +322,13 @@ def detect_exact_duplicates(df: pd.DataFrame) -> tuple[pd.Series, dict]:
     double-recorded row, not two genuinely identical purchases.
     """
     mask = df.duplicated(keep="first")
-    n_groups = int(df[df.duplicated(keep=False)].fillna("").astype(str)
-                   .agg("|".join, axis=1).nunique())
+    dup_rows = df[df.duplicated(keep=False)]
+    if len(dup_rows):
+        n_groups = int(dup_rows.fillna("").astype(str)
+                       .agg("|".join, axis=1).nunique())
+    else:
+        # Empty frame: .agg(axis=1) would return a DataFrame, not a Series.
+        n_groups = 0
     return mask, {
         "n_duplicate_rows": int(mask.sum()),
         "n_duplicate_groups": n_groups,

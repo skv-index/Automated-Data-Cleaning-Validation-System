@@ -3,6 +3,9 @@
 *.xls
 *.csv
 
+# ... except Module 2's official cleaned output (Sprint 6 deliverable)
+!module2_cleaning/cleaned_data.csv
+
 # Python
 __pycache__/
 *.py[cod]

@@ -7,6 +7,7 @@ fixes the data to match. Two artefacts:
 |---|---|---|
 | 4 — Schema inference | `schema_inference.py` | Reads Sprint 3's `profiling_report.json`, derives expected type / ranges / formats per column → `expected_schema.json` |
 | 5 — Cleaning pipeline | `cleaner.py` | Enforces the schema: normalize → impute (statistical + KNN) → dedupe (exact + fuzzy); proves it on a sample → `cleaning_sample_diff.json` |
+| 6 — Transform + score + API | `transformer.py` / `cleaning_api.py` | Feature extraction, z-score scaling, one-hot encoding; 0–100 quality scoring before/after; official API → `cleaned_data.csv` + `cleaning_log.json` |
 
 ## Calling the engine
 
@@ -194,6 +195,46 @@ Each record carries `before` / `after` snapshots, the `operations`
 applied (naming the schema rule), and per-row `status`; the header records
 the imputation choice note, the KNN masked-reconstruction scores, and the
 full-frame duplicate counts.
+
+## Sprint 6 — Transformation, quality scoring, API, tests
+
+**Transformer** (`transformer.py`) — three transforms over the cleaned
+frame: `extract_features` adds `LineValue` (= Quantity × UnitPrice),
+`IsCancellation` / `IsReturn` / `IsGiveaway` flags and six calendar parts
+(year → weekday); `scale_features` adds z-score `*_scaled` columns and
+returns the fitted mean/std; `encode_features` one-hots Country for
+modelling consumers (not persisted — 28 sparse columns would bloat the
+official CSV).
+
+**Quality scoring** (`cleaning_api.score_quality`) — 0–100 across four
+weighted dimensions: completeness 0.25 (rows fully present, CustomerID
+excluded as structural), consistency 0.35 (rows already canonical —
+casing/whitespace/aliases are this dataset's real dirt), uniqueness 0.20
+(exact-dup rate), validity 0.20 (every hard schema rule). Full run:
+**91.19 → 100.00 (Δ +8.81)**; validity was already 100 and honestly stays
+there — hard rules were never violated.
+
+**API** (`cleaning_api.py`) — `run_cleaning_pipeline()` scores before,
+cleans, transforms, scores after, and writes the two official outputs:
+`cleaned_data.csv` (98,918 × 21: 8 canonical + 10 engineered + 3 scaled
+columns) and `cleaning_log.json` (every fix, near-dup groups, scaler
+params, before/after scores + delta).
+
+**Tests** (`tests/test_cleaning.py`, with `tests/conftest.py` path
+harness) — 14 tests, unit + integration:
+
+```bash
+python -m pytest tests/test_cleaning.py -q   # 14 passed
+```
+
+Unit: normalization, statistical/KNN imputation (+CustomerID exclusion),
+KNN verification report, exact + fuzzy dedup (incl. a no-false-positive
+case), feature math/flags/date parts, scaling moments, one-hot encoding,
+and scoring (perfect frame = 100; dirty frame < 100 → 100 after cleaning).
+Integration: full pipeline on a 400-row slice (official files exist, no
+nulls in required columns, no exact dups, after-score = 100) plus
+schema-conformance of the produced CSV (InvoiceNo/StockCode patterns,
+trimmed Descriptions).
 
 ## Notes for downstream modules
 
