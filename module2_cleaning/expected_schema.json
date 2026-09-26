@@ -1,0 +1,1695 @@
+{
+  "module": "module2_cleaning",
+  "schema_version": "1.0.0",
+  "schema_name": "expected_schema",
+  "purpose": "Expected schema for the Online Retail II dataset: what 'correct' looks like before cleaning. Every column declares its expected type, value ranges, formats and acceptance targets. Cleaning steps validate against this contract.",
+  "generated_at": "2026-09-26T09:00:03+00:00",
+  "inferred_from": {
+    "report": "module1_profiling/profiling_report.json",
+    "report_module": "module1_profiling",
+    "report_version": "1.0.0",
+    "source_file": "D:\\cadetx\\online_retail_II.xlsx",
+    "nrows_per_sheet": 50000,
+    "n_rows": 100000,
+    "n_columns": 8
+  },
+  "dataset": {
+    "grain": "one row per invoice line item (an InvoiceNo may span many rows)",
+    "n_rows_profiled": 100000,
+    "n_columns": 8,
+    "columns": [
+      "InvoiceNo",
+      "StockCode",
+      "Description",
+      "Quantity",
+      "InvoiceDate",
+      "UnitPrice",
+      "CustomerID",
+      "Country"
+    ],
+    "primary_key": null,
+    "primary_key_note": "No single column is unique: the most granular column (InvoiceNo) has 4976 distinct values over 100000 rows, so the grain is the line item, not the invoice.",
+    "key_candidates": [
+      {
+        "columns": [
+          "InvoiceNo",
+          "StockCode",
+          "InvoiceDate"
+        ],
+        "uniqueness_test": "required",
+        "note": "Candidate composite key for the line-item grain; cleaning must assert uniqueness, not assume it."
+      }
+    ],
+    "role_counts": {
+      "key": 3,
+      "text": 1,
+      "measure": 2,
+      "timestamp": 1,
+      "dimension": 1
+    },
+    "unique_counts": {
+      "InvoiceNo": 4976,
+      "StockCode": 4014,
+      "Description": 4115,
+      "Quantity": 319,
+      "InvoiceDate": 4343,
+      "UnitPrice": 505,
+      "CustomerID": 1720,
+      "Country": 28
+    }
+  },
+  "row_validity_rules": [
+    {
+      "rule_id": "rv-1-giveaway-line",
+      "rule": "UnitPrice == 0  =>  adjustment/giveaway line, not a sale",
+      "observed_rows": 595,
+      "observed_pct": 0.59,
+      "handling": "keep flagged (IsGiveaway); exclude from revenue metrics",
+      "basis": "observed"
+    },
+    {
+      "rule_id": "rv-2-return-line",
+      "rule": "Quantity < 0  =>  return/credit line",
+      "observed_rows": 2263,
+      "observed_pct": 2.26,
+      "handling": "keep with sign (IsReturn); never take abs()",
+      "basis": "observed"
+    },
+    {
+      "rule_id": "rv-3-cancellation",
+      "rule": "InvoiceNo LIKE 'C%'  =>  cancellation of a prior invoice",
+      "observed_rows": 2077,
+      "observed_pct": 2.08,
+      "handling": "retain as negative-value events (IsCancellation); net revenue requires pairing with the original",
+      "basis": "observed"
+    },
+    {
+      "rule_id": "rv-4-guest-order",
+      "rule": "CustomerID IS NULL  =>  guest/unattributed order",
+      "observed_rows": 31778,
+      "observed_pct": 31.78,
+      "handling": "keep for revenue analytics; exclude only from customer-level segmentation",
+      "basis": "observed"
+    },
+    {
+      "rule_id": "rv-5-missing-description",
+      "rule": "Description IS NULL  =>  product name not captured",
+      "observed_rows": 408,
+      "observed_pct": 0.41,
+      "handling": "impute from the StockCode->Description lookup",
+      "basis": "observed"
+    }
+  ],
+  "derived_columns": [
+    {
+      "column": "LineValue",
+      "expression": "Quantity * UnitPrice",
+      "dtype": "float",
+      "unit": "local currency",
+      "note": "Signed line value: negative for returns, zero for giveaways."
+    },
+    {
+      "column": "IsCancellation",
+      "expression": "InvoiceNo matches '^C'",
+      "dtype": "boolean",
+      "note": "True for the 2077 cancellation lines."
+    },
+    {
+      "column": "IsReturn",
+      "expression": "Quantity < 0",
+      "dtype": "boolean",
+      "note": "True for the 2263 return/credit lines."
+    },
+    {
+      "column": "IsGiveaway",
+      "expression": "UnitPrice == 0",
+      "dtype": "boolean",
+      "note": "True for the 595 adjustment/giveaway lines."
+    }
+  ],
+  "columns": {
+    "InvoiceNo": {
+      "column": "InvoiceNo",
+      "semantic_type": "invoice_id",
+      "role": "key",
+      "expected_dtype": "string",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "object (text)",
+        "expected_storage_type": "string"
+      },
+      "value_families": [
+        {
+          "name": "numeric_code",
+          "pattern": "^\\d{5,7}$",
+          "pattern_observed": "^\\d{6}$",
+          "observed_rows": 97923,
+          "observed_pct": 97.923,
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceNo.mixed_type_detail.n_numeric_like"
+          }
+        },
+        {
+          "name": "prefixed_code",
+          "pattern": "^C\\d{5,7}$",
+          "pattern_observed": "^C\\d{6}$",
+          "observed_rows": 2077,
+          "observed_pct": 2.077,
+          "basis": "observed",
+          "note": "A leading 'C' marks a credit/cancellation event, not a distinct entity - valid values, never dropped silently.",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceNo.mixed_type_detail.n_cancelled_style_prefix"
+          }
+        }
+      ],
+      "family_coverage_pct": 100.0,
+      "expected_format": {
+        "pattern": "^(?:(?:\\d{5,7})|(?:C\\d{5,7}))$",
+        "variants": [
+          {
+            "name": "numeric_code",
+            "pattern": "^\\d{5,7}$",
+            "pattern_observed": "^\\d{6}$",
+            "observed_rows": 97923,
+            "observed_pct": 97.923,
+            "basis": "observed",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.InvoiceNo.mixed_type_detail.n_numeric_like"
+            }
+          },
+          {
+            "name": "prefixed_code",
+            "pattern": "^C\\d{5,7}$",
+            "pattern_observed": "^C\\d{6}$",
+            "observed_rows": 2077,
+            "observed_pct": 2.077,
+            "basis": "observed",
+            "note": "A leading 'C' marks a credit/cancellation event, not a distinct entity - valid values, never dropped silently.",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.InvoiceNo.mixed_type_detail.n_cancelled_style_prefix"
+            }
+          }
+        ],
+        "case": "upper",
+        "trim_required": false,
+        "n_evidence_values_examined": 11
+      },
+      "constraints": [
+        {
+          "constraint_id": "invoiceno-type",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "InvoiceNo is text (string)",
+          "message": "InvoiceNo must stay text: its text codes would be destroyed by numeric casting.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceNo.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "invoiceno-pattern",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "InvoiceNo matches ^(?:(?:\\d{5,7})|(?:C\\d{5,7}))$",
+          "message": "Every non-null InvoiceNo must match one known value family.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceNo.mixed_type_detail"
+          }
+        },
+        {
+          "constraint_id": "invoiceno-case",
+          "kind": "format",
+          "severity": "review",
+          "rule": "upper(InvoiceNo) == InvoiceNo",
+          "message": "InvoiceNo must be upper-case after cleaning.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4976,
+        "inferred_dtype": "string",
+        "semantic_type": "invoice_id",
+        "is_mixed_type": true,
+        "sample_values": [
+          "489434",
+          "489434",
+          "489434",
+          "489434",
+          "489434"
+        ]
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_pattern_mismatch_max": 0,
+        "n_cancelled_preserved": 2077,
+        "storage": "string"
+      }
+    },
+    "StockCode": {
+      "column": "StockCode",
+      "semantic_type": "product_id (SKU)",
+      "role": "key",
+      "expected_dtype": "string",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "object (text)",
+        "expected_storage_type": "string"
+      },
+      "value_families": [
+        {
+          "name": "numeric_code",
+          "pattern": "^\\d{4,6}$",
+          "pattern_observed": "^\\d{5}$",
+          "observed_rows": 82795,
+          "observed_pct": 82.795,
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.mixed_type_detail.n_numeric_like"
+          }
+        },
+        {
+          "name": "digit_core_with_letter_suffix",
+          "pattern": "^\\d{4,6}[A-Za-z]{1,2}$",
+          "pattern_observed": "^\\d{5}[A-Za-z]{1}$",
+          "observed_rows": 16754,
+          "observed_pct": 16.754,
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.mixed_type_detail.n_digit_core_with_letter_suffix"
+          }
+        },
+        {
+          "name": "prefixed_code",
+          "pattern": "^C\\d{4,6}$",
+          "pattern_observed": "^C\\d{5}$",
+          "observed_rows": 22,
+          "observed_pct": 0.022,
+          "basis": "observed",
+          "note": "A leading 'C' marks a credit/cancellation event, not a distinct entity - valid values, never dropped silently.",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.mixed_type_detail.n_cancelled_style_prefix"
+          }
+        },
+        {
+          "name": "service_or_adjustment_code",
+          "pattern": "^[A-Za-z][A-Za-z0-9 .'/&_()-]{0,30}$",
+          "pattern_observed": "^[A-Z][A-Za-z0-9 .'/&_()-]{0,30}$",
+          "matching": "case-insensitive at match time; values canonicalise to upper() afterwards",
+          "observed_rows": 429,
+          "observed_pct": 0.429,
+          "basis": "observed",
+          "note": "Non-merchandise codes (carriage, samples, manual adjustments, test rows). The operative pattern accepts a lowercase lead letter because this column carries case-variant spellings of the same codes; values still canonicalise to upper(). Valid rows; keep, do not drop.",
+          "examples": [],
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.mixed_type_detail.n_text"
+          }
+        }
+      ],
+      "family_coverage_pct": 100.0,
+      "expected_format": {
+        "pattern": "^(?:(?:\\d{4,6})|(?:\\d{4,6}[A-Za-z]{1,2})|(?:C\\d{4,6})|(?:[A-Za-z][A-Za-z0-9 .'/&_()-]{0,30}))$",
+        "variants": [
+          {
+            "name": "numeric_code",
+            "pattern": "^\\d{4,6}$",
+            "pattern_observed": "^\\d{5}$",
+            "observed_rows": 82795,
+            "observed_pct": 82.795,
+            "basis": "observed",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.StockCode.mixed_type_detail.n_numeric_like"
+            }
+          },
+          {
+            "name": "digit_core_with_letter_suffix",
+            "pattern": "^\\d{4,6}[A-Za-z]{1,2}$",
+            "pattern_observed": "^\\d{5}[A-Za-z]{1}$",
+            "observed_rows": 16754,
+            "observed_pct": 16.754,
+            "basis": "observed",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.StockCode.mixed_type_detail.n_digit_core_with_letter_suffix"
+            }
+          },
+          {
+            "name": "prefixed_code",
+            "pattern": "^C\\d{4,6}$",
+            "pattern_observed": "^C\\d{5}$",
+            "observed_rows": 22,
+            "observed_pct": 0.022,
+            "basis": "observed",
+            "note": "A leading 'C' marks a credit/cancellation event, not a distinct entity - valid values, never dropped silently.",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.StockCode.mixed_type_detail.n_cancelled_style_prefix"
+            }
+          },
+          {
+            "name": "service_or_adjustment_code",
+            "pattern": "^[A-Za-z][A-Za-z0-9 .'/&_()-]{0,30}$",
+            "pattern_observed": "^[A-Z][A-Za-z0-9 .'/&_()-]{0,30}$",
+            "matching": "case-insensitive at match time; values canonicalise to upper() afterwards",
+            "observed_rows": 429,
+            "observed_pct": 0.429,
+            "basis": "observed",
+            "note": "Non-merchandise codes (carriage, samples, manual adjustments, test rows). The operative pattern accepts a lowercase lead letter because this column carries case-variant spellings of the same codes; values still canonicalise to upper(). Valid rows; keep, do not drop.",
+            "examples": [],
+            "evidence_from_report": {
+              "report_path": "metadata.fields.StockCode.mixed_type_detail.n_text"
+            }
+          }
+        ],
+        "case": "upper",
+        "trim_required": true,
+        "n_evidence_values_examined": 19
+      },
+      "constraints": [
+        {
+          "constraint_id": "stockcode-type",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "StockCode is text (string)",
+          "message": "StockCode must stay text: its text codes would be destroyed by numeric casting.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "stockcode-pattern",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "StockCode matches ^(?:(?:\\d{4,6})|(?:\\d{4,6}[A-Za-z]{1,2})|(?:C\\d{4,6})|(?:[A-Za-z][A-Za-z0-9 .'/&_()-]{0,30}))$",
+          "message": "Every non-null StockCode must match one known value family.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.StockCode.mixed_type_detail"
+          }
+        },
+        {
+          "constraint_id": "stockcode-case",
+          "kind": "format",
+          "severity": "review",
+          "rule": "upper(StockCode) == StockCode",
+          "message": "StockCode must be upper-case after cleaning.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        },
+        {
+          "constraint_id": "stockcode-trim",
+          "kind": "format",
+          "severity": "review",
+          "rule": "trim(StockCode) == StockCode",
+          "message": "StockCode must carry no leading/trailing whitespace.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4014,
+        "inferred_dtype": "string",
+        "semantic_type": "product_id (SKU)",
+        "is_mixed_type": true,
+        "sample_values": [
+          "85048",
+          "79323P",
+          "79323W",
+          "22041",
+          "21232"
+        ]
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_pattern_mismatch_max": 0,
+        "n_lowercase_max": 0,
+        "n_padded_max": 0,
+        "storage": "string"
+      }
+    },
+    "Description": {
+      "column": "Description",
+      "semantic_type": "product_description",
+      "role": "text",
+      "expected_dtype": "string",
+      "nullable": true,
+      "null_semantics": "Missing means the product name was not captured; impute from StockCode, never invent text.",
+      "null_policy": {
+        "observed_null_pct": 0.41,
+        "max_acceptable_null_pct": 1.0,
+        "action": "impute from the StockCode->Description lookup; only if the StockCode itself is unknown may the row be dropped",
+        "basis": "observed",
+        "evidence_from_report": {
+          "report_path": "metadata.fields.Description.null_pct"
+        }
+      },
+      "storage": {
+        "observed_storage_type": "object (text)",
+        "expected_storage_type": "string"
+      },
+      "value_range": null,
+      "expected_format": {
+        "pattern": "^\\S(.*\\S)?$",
+        "pattern_observed": "^\\S(.*\\S)?$",
+        "case": "upper",
+        "trim_required": true,
+        "collapse_internal_whitespace": true,
+        "min_length": 1,
+        "max_length": 128,
+        "observed_max_length": 35,
+        "observed_n_unique": 4115,
+        "n_evidence_values_examined": 18
+      },
+      "constraints": [
+        {
+          "constraint_id": "description-type",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "Description is text",
+          "message": "Description is free-text product naming.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Description.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "description-trim",
+          "kind": "format",
+          "severity": "review",
+          "rule": "trim(Description) == Description",
+          "message": "Descriptions carry no leading/trailing whitespace (18,717 padded values observed).",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        },
+        {
+          "constraint_id": "description-spacing",
+          "kind": "format",
+          "severity": "review",
+          "rule": "no runs of 2+ internal spaces",
+          "message": "Internal whitespace collapses to single spaces.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        },
+        {
+          "constraint_id": "description-case",
+          "kind": "format",
+          "severity": "review",
+          "rule": "upper(Description) == Description",
+          "message": "Descriptions canonicalise to upper case (case-variant groups observed).",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.inconsistent_formats"
+          }
+        },
+        {
+          "constraint_id": "description-nonempty",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "len(trim(Description)) >= 1",
+          "message": "Empty strings are not valid descriptions.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.Description.n_unique"
+          }
+        },
+        {
+          "constraint_id": "description-length",
+          "kind": "format",
+          "severity": "review",
+          "rule": "len(Description) <= 128",
+          "message": "Descriptions are short product names, not prose.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "description-null",
+          "kind": "nullability",
+          "severity": "review",
+          "rule": "Description IS NULL only before imputation",
+          "message": "0.41% of rows lack a description; every gap is imputable from its StockCode, so zero residual nulls are expected after cleaning.",
+          "basis": "observed",
+          "observed_violations": 408,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Description.n_null"
+          }
+        },
+        {
+          "constraint_id": "description-per-stockcode",
+          "kind": "consistency",
+          "severity": "review",
+          "rule": "one canonical Description per StockCode",
+          "message": "After case/whitespace normalisation each StockCode maps to exactly one Description.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.StockCode.n_unique"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 408,
+        "null_pct": 0.41,
+        "n_unique": 4115,
+        "inferred_dtype": "string",
+        "semantic_type": "product_description",
+        "is_mixed_type": false,
+        "sample_values": [
+          "15CM CHRISTMAS GLASS BALL 20 LIGHTS",
+          "PINK CHERRY LIGHTS",
+          " WHITE CHERRY LIGHTS",
+          "RECORD FRAME 7\" SINGLE SIZE ",
+          "STRAWBERRY CERAMIC TRINKET BOX"
+        ]
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "null_pct_max": 0.0,
+        "n_padded_max": 0,
+        "n_case_variant_groups_max": 0,
+        "storage": "string"
+      }
+    },
+    "Quantity": {
+      "column": "Quantity",
+      "semantic_type": "quantity",
+      "role": "measure",
+      "expected_dtype": "int",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "int64",
+        "expected_storage_type": "int64"
+      },
+      "value_range": {
+        "min": -10000,
+        "max": 10000,
+        "observed_min": -9360.0,
+        "observed_max": 5184.0,
+        "zero_allowed": false,
+        "negative_allowed": true,
+        "typical": {
+          "min": -9.5,
+          "max": 18.5
+        },
+        "plausible": {
+          "min": -20.0,
+          "max": 29.0
+        },
+        "quantiles": {
+          "q1": 1.0,
+          "median": 2.0,
+          "q3": 8.0,
+          "iqr": 7.0
+        },
+        "distribution_shape": {
+          "mean": 9.2897,
+          "std": 58.7096,
+          "skew": -15.2076,
+          "kurtosis": 8161.1902,
+          "n_iqr_outliers": 11052,
+          "outlier_pct": 11.05
+        },
+        "tiers": [
+          {
+            "tier": "typical",
+            "min": -9.5,
+            "max": 18.5,
+            "action": "none",
+            "basis": "derived",
+            "note": "Inside the 1.5x IQR fences."
+          },
+          {
+            "tier": "plausible",
+            "min": -20.0,
+            "max": 29.0,
+            "action": "review (plausible: bulk order / premium item)",
+            "basis": "derived",
+            "note": "Inside the 3.0x IQR fences."
+          },
+          {
+            "tier": "atypical",
+            "min": -10000,
+            "max": 10000,
+            "action": "quarantine for review; never auto-drop",
+            "basis": "derived",
+            "note": "Inside the hard bounds but outside the plausible band."
+          },
+          {
+            "tier": "invalid",
+            "min": null,
+            "max": null,
+            "action": "reject row as a data error",
+            "basis": "domain",
+            "note": "Outside [-10000, 10000]."
+          }
+        ],
+        "basis": "derived",
+        "evidence_from_report": {
+          "report_path": "statistics.numeric_profile.distributions.Quantity"
+        }
+      },
+      "expected_format": {
+        "decimal_places_max": 0,
+        "signed": true
+      },
+      "constraints": [
+        {
+          "constraint_id": "quantity-dtype",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "Quantity parses as int",
+          "message": "Quantity must be int-typed after cleaning.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Quantity.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "quantity-bounds",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "-10000 <= Quantity <= 10000",
+          "message": "Quantity outside [-10000, 10000] is a data error.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.Quantity"
+          }
+        },
+        {
+          "constraint_id": "quantity-integer",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "Quantity % 1 == 0",
+          "message": "Quantities are whole units; fractional quantities are data errors.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Quantity.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "quantity-no-zero",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "Quantity != 0",
+          "message": "A zero-unit line item is physically meaningless.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.Quantity.n_zero"
+          }
+        },
+        {
+          "constraint_id": "quantity-sign",
+          "kind": "consistency",
+          "severity": "info",
+          "rule": "Quantity < 0  <=>  return/credit line",
+          "message": "2263 (2.26%) negative rows are returns/cancellations - keep with sign, never take abs().",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.Quantity.n_negative"
+          }
+        },
+        {
+          "constraint_id": "quantity-bulk",
+          "kind": "range",
+          "severity": "review",
+          "rule": "flag |Quantity| > 1000",
+          "message": "Bulk quantities are plausible wholesale orders but must be reviewed, not auto-dropped.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.suspicious_columns"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 319,
+        "inferred_dtype": "int",
+        "semantic_type": "quantity",
+        "is_mixed_type": false,
+        "sample_values": [
+          "12",
+          "12",
+          "12",
+          "48",
+          "24"
+        ],
+        "field_min": -9360.0,
+        "field_max": 5184.0,
+        "dist_mean": 9.2897,
+        "dist_median": 2.0,
+        "dist_std": 58.7096,
+        "dist_min": -9360.0,
+        "dist_max": 5184.0,
+        "dist_q1": 1.0,
+        "dist_q3": 8.0,
+        "dist_iqr": 7.0,
+        "dist_n_negative": 2263,
+        "dist_n_zero": 0,
+        "dist_skew": -15.2076,
+        "dist_kurtosis": 8161.1902,
+        "dist_n_iqr_outliers": 11052,
+        "dist_outlier_pct": 11.05,
+        "dist_count": 100000
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_zero_max": 0,
+        "n_non_integer_max": 0,
+        "n_negative_preserved": 2263,
+        "out_of_bounds_max": 0,
+        "storage": "int64"
+      },
+      "notes": "Sign is signal: negative = return/credit. The 11.05% of rows outside the IQR fences are ordinary retail spread, not dirt - cleaning must not winsorise them away."
+    },
+    "InvoiceDate": {
+      "column": "InvoiceDate",
+      "semantic_type": "transaction_datetime",
+      "role": "timestamp",
+      "expected_dtype": "date",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "datetime64[us]",
+        "expected_storage_type": "datetime64[ns]"
+      },
+      "value_range": {
+        "min": "2009-01-01 00:00:00",
+        "max": "2011-12-31 23:59:59",
+        "observed_min": "2009-12-01 07:45:00",
+        "observed_max": "2011-01-09 15:13:00",
+        "rule": "2009-01-01 00:00:00 <= InvoiceDate <= 2011-12-31 23:59:59 (calendar-year envelope of the observed range)",
+        "basis": "derived",
+        "business_years_agree_with_prior": true,
+        "evidence_from_report": {
+          "report_path": "metadata.fields.InvoiceDate.min"
+        }
+      },
+      "expected_format": {
+        "strftime": "%Y-%m-%d %H:%M:%S",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+        "pattern_observed": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+        "pattern_match": "10/10 evidence values match",
+        "resolution": "second",
+        "timezone": null,
+        "n_evidence_values_examined": 10
+      },
+      "constraints": [
+        {
+          "constraint_id": "invoicedate-format",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "InvoiceDate matches ^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}$",
+          "message": "InvoiceDate renders as '%Y-%m-%d %H:%M:%S': 4-digit year, 2-digit month/day/hour/minute/second, space-separated.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceDate.sample_values"
+          }
+        },
+        {
+          "constraint_id": "invoicedate-resolution",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "InvoiceDate has second resolution, no sub-second part",
+          "message": "Finer timestamps than one second are data errors.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "invoicedate-tz",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "InvoiceDate is tz-naive",
+          "message": "No timezone offsets or zone names may appear.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "invoicedate-window",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "2009-01-01 00:00:00 <= InvoiceDate <= 2011-12-31 23:59:59",
+          "message": "InvoiceDate must fall inside the 2009-2011 business window (observed min/max floored/ceiled to whole calendar years).",
+          "basis": "derived",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceDate.min"
+          }
+        },
+        {
+          "constraint_id": "invoicedate-no-future",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "InvoiceDate <= today",
+          "message": "A transaction timestamp in the future is a data error.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "invoicedate-null",
+          "kind": "nullability",
+          "severity": "hard",
+          "rule": "InvoiceDate IS NOT NULL",
+          "message": "InvoiceDate is never missing in the profiled data.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.InvoiceDate.n_null"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 4343,
+        "inferred_dtype": "date",
+        "semantic_type": "transaction_datetime",
+        "is_mixed_type": false,
+        "sample_values": [
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00",
+          "2009-12-01 07:45:00"
+        ],
+        "field_min": "2009-12-01 07:45:00",
+        "field_max": "2011-01-09 15:13:00"
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_unparseable_max": 0,
+        "out_of_window_max": 0,
+        "storage": "datetime64[ns]"
+      }
+    },
+    "UnitPrice": {
+      "column": "UnitPrice",
+      "semantic_type": "unit_price",
+      "role": "measure",
+      "expected_dtype": "float",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "float64",
+        "expected_storage_type": "float64"
+      },
+      "value_range": {
+        "min": 0.0,
+        "max": 20000.0,
+        "observed_min": 0.0,
+        "observed_max": 16888.02,
+        "zero_allowed": true,
+        "negative_allowed": false,
+        "typical": {
+          "min": 0.0,
+          "max": 9.75
+        },
+        "plausible": {
+          "min": 0.0,
+          "max": 14.85
+        },
+        "quantiles": {
+          "q1": 1.25,
+          "median": 2.55,
+          "q3": 4.65,
+          "iqr": 3.4
+        },
+        "distribution_shape": {
+          "mean": 5.3742,
+          "std": 118.7212,
+          "skew": 117.4622,
+          "kurtosis": 14648.3414,
+          "n_iqr_outliers": 6634,
+          "outlier_pct": 6.63
+        },
+        "tiers": [
+          {
+            "tier": "typical",
+            "min": 0.0,
+            "max": 9.75,
+            "action": "none",
+            "basis": "derived",
+            "note": "Inside the 1.5x IQR fences."
+          },
+          {
+            "tier": "plausible",
+            "min": 0.0,
+            "max": 14.85,
+            "action": "review (plausible: bulk order / premium item)",
+            "basis": "derived",
+            "note": "Inside the 3.0x IQR fences."
+          },
+          {
+            "tier": "atypical",
+            "min": 0.0,
+            "max": 20000.0,
+            "action": "quarantine for review; never auto-drop",
+            "basis": "derived",
+            "note": "Inside the hard bounds but outside the plausible band."
+          },
+          {
+            "tier": "invalid",
+            "min": null,
+            "max": null,
+            "action": "reject row as a data error",
+            "basis": "domain",
+            "note": "Outside [0.0, 20000.0]."
+          }
+        ],
+        "basis": "derived",
+        "evidence_from_report": {
+          "report_path": "statistics.numeric_profile.distributions.UnitPrice"
+        }
+      },
+      "expected_format": {
+        "decimal_places_max": 2,
+        "signed": false
+      },
+      "constraints": [
+        {
+          "constraint_id": "unitprice-dtype",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "UnitPrice parses as float",
+          "message": "UnitPrice must be float-typed after cleaning.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.UnitPrice.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "unitprice-bounds",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "0.0 <= UnitPrice <= 20000.0",
+          "message": "UnitPrice outside [0.0, 20000.0] is a data error.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.UnitPrice"
+          }
+        },
+        {
+          "constraint_id": "unitprice-non-negative",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "UnitPrice >= 0.0",
+          "message": "A negative price is impossible - data error.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.UnitPrice.n_negative"
+          }
+        },
+        {
+          "constraint_id": "unitprice-zero-flag",
+          "kind": "consistency",
+          "severity": "review",
+          "rule": "UnitPrice == 0  =>  adjustment/giveaway line",
+          "message": "595 zero-price rows are adjustments/giveaways, not real prices: keep flagged, exclude from revenue metrics.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "statistics.numeric_profile.distributions.UnitPrice.n_zero"
+          }
+        },
+        {
+          "constraint_id": "unitprice-currency",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "UnitPrice has at most 2 decimal places",
+          "message": "Prices are currency values with at most 2 decimals.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.UnitPrice.top_values"
+          }
+        },
+        {
+          "constraint_id": "unitprice-extreme",
+          "kind": "range",
+          "severity": "review",
+          "rule": "flag UnitPrice > 1000.0",
+          "message": "Large-ticket prices are plausible but must be verified against the source system.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.suspicious_columns"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 505,
+        "inferred_dtype": "float",
+        "semantic_type": "unit_price",
+        "is_mixed_type": false,
+        "sample_values": [
+          "6.95",
+          "6.75",
+          "6.75",
+          "2.1",
+          "1.25"
+        ],
+        "field_min": 0.0,
+        "field_max": 16888.02,
+        "dist_mean": 5.3742,
+        "dist_median": 2.55,
+        "dist_std": 118.7212,
+        "dist_min": 0.0,
+        "dist_max": 16888.02,
+        "dist_q1": 1.25,
+        "dist_q3": 4.65,
+        "dist_iqr": 3.4,
+        "dist_n_negative": 0,
+        "dist_n_zero": 595,
+        "dist_skew": 117.4622,
+        "dist_kurtosis": 14648.3414,
+        "dist_n_iqr_outliers": 6634,
+        "dist_outlier_pct": 6.63,
+        "dist_count": 100000
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_negative_max": 0,
+        "n_zero_preserved_flagged": 595,
+        "n_gt_2dp_max": 0,
+        "out_of_bounds_max": 0,
+        "storage": "float64"
+      },
+      "notes": "Zero prices are legitimate adjustment lines; negatives are not. Only 13 rows exceed 1000.0."
+    },
+    "CustomerID": {
+      "column": "CustomerID",
+      "semantic_type": "customer_id",
+      "role": "key",
+      "expected_dtype": "int",
+      "nullable": true,
+      "null_semantics": "Missing denotes guest checkout / unattributed orders - a valid state that must be preserved. Never fill with 0 or -1.",
+      "storage": {
+        "observed_storage_type": "float64 (NaN-coerced; values render as e.g. '13085.0')",
+        "expected_storage_type": "Int64 (nullable integer)"
+      },
+      "value_families": [
+        {
+          "name": "numeric_code",
+          "pattern": "^\\d{4,6}$",
+          "pattern_observed": "^\\d{5}$",
+          "observed_rows": 68222,
+          "observed_pct": 68.222,
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "metadata.fields.CustomerID.mixed_type_detail.n_numeric_like"
+          }
+        }
+      ],
+      "family_coverage_pct": 100.0,
+      "expected_format": {
+        "pattern": "^(?:(?:\\d{4,6}))$",
+        "variants": [
+          {
+            "name": "numeric_code",
+            "pattern": "^\\d{4,6}$",
+            "pattern_observed": "^\\d{5}$",
+            "observed_rows": 68222,
+            "observed_pct": 68.222,
+            "basis": "observed",
+            "evidence_from_report": {
+              "report_path": "metadata.fields.CustomerID.mixed_type_detail.n_numeric_like"
+            }
+          }
+        ],
+        "case": null,
+        "trim_required": false,
+        "n_evidence_values_examined": 6
+      },
+      "constraints": [
+        {
+          "constraint_id": "customerid-type",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "CustomerID is text (int)",
+          "message": "CustomerID must stay text: its text codes would be destroyed by numeric casting.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.CustomerID.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "customerid-pattern",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "CustomerID matches ^(?:(?:\\d{4,6}))$",
+          "message": "Every non-null CustomerID must match one known value family.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.CustomerID.mixed_type_detail"
+          }
+        },
+        {
+          "constraint_id": "customerid-integer",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "CustomerID % 1 == 0",
+          "message": "CustomerID is a whole-number identifier; fractional values are data errors.",
+          "basis": "domain",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.CustomerID.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "customerid-block",
+          "kind": "range",
+          "severity": "hard",
+          "rule": "12000 <= CustomerID <= 19000",
+          "message": "CustomerID must fall inside the anonymised ID block.",
+          "basis": "derived",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.CustomerID.min"
+          }
+        },
+        {
+          "constraint_id": "customerid-not-a-measure",
+          "kind": "consistency",
+          "severity": "info",
+          "rule": "never aggregate CustomerID (no mean/sum)",
+          "message": "CustomerID only joins and groups; it is never a model feature raw.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "customerid-pii",
+          "kind": "privacy",
+          "severity": "review",
+          "rule": "hash/anonymise CustomerID before sharing",
+          "message": "CustomerID directly singles out an individual.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.pii_columns"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 31778,
+        "null_pct": 31.78,
+        "n_unique": 1720,
+        "inferred_dtype": "int",
+        "semantic_type": "customer_id",
+        "is_mixed_type": false,
+        "sample_values": [
+          "13085",
+          "13085",
+          "13085",
+          "13085",
+          "13085"
+        ],
+        "field_min": 12346.0,
+        "field_max": 18287.0
+      },
+      "value_range": {
+        "min": 12000,
+        "max": 19000,
+        "observed_min": 12346.0,
+        "observed_max": 18287.0,
+        "zero_allowed": false,
+        "negative_allowed": false,
+        "rule": "12000 <= CustomerID <= 19000 (observed range [12346, 18287] rounded outward to the nearest 1000)",
+        "id_block_note": "IDs are non-contiguous; never assume sequence or density.",
+        "basis": "derived",
+        "evidence_from_report": {
+          "report_path": "metadata.fields.CustomerID.min"
+        }
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "null_pct": 31.78,
+        "null_pct_max": 36.78,
+        "n_fractional_max": 0,
+        "out_of_block_max": 0,
+        "storage": "Int64"
+      }
+    },
+    "Country": {
+      "column": "Country",
+      "semantic_type": "country",
+      "role": "dimension",
+      "expected_dtype": "string",
+      "nullable": false,
+      "null_semantics": "No nulls expected.",
+      "storage": {
+        "observed_storage_type": "str",
+        "expected_storage_type": "string"
+      },
+      "value_range": null,
+      "expected_format": {
+        "pattern": "^[A-Z][A-Za-z .'\\-]{1,29}$",
+        "pattern_observed": "^[A-Z][A-Za-z .'\\-]{1,29}$",
+        "case": "title",
+        "trim_required": true,
+        "n_evidence_values_examined": 8
+      },
+      "allowed_values": {
+        "mode": "closed_reference_set",
+        "values": [
+          "Australia",
+          "Austria",
+          "Bahrain",
+          "Belgium",
+          "Channel Islands",
+          "Cyprus",
+          "Denmark",
+          "Finland",
+          "France",
+          "Germany",
+          "Greece",
+          "Iceland",
+          "Ireland",
+          "Israel",
+          "Italy",
+          "Japan",
+          "Lithuania",
+          "Netherlands",
+          "Nigeria",
+          "Norway",
+          "Poland",
+          "Portugal",
+          "Spain",
+          "Sweden",
+          "Switzerland",
+          "United Arab Emirates",
+          "United Kingdom",
+          "United States"
+        ],
+        "n_unique_observed": 28,
+        "max_n_unique": 40,
+        "values_seen_in_report": [
+          "Australia",
+          "Belgium",
+          "EIRE",
+          "France",
+          "Germany",
+          "Spain",
+          "USA",
+          "United Kingdom"
+        ],
+        "values_seen_in_report_canonical": [
+          "Australia",
+          "Belgium",
+          "France",
+          "Germany",
+          "Ireland",
+          "Spain",
+          "United Kingdom",
+          "United States"
+        ],
+        "values_not_seen_in_report_sample": [
+          "Austria",
+          "Bahrain",
+          "Channel Islands",
+          "Cyprus",
+          "Denmark",
+          "Finland",
+          "Greece",
+          "Iceland",
+          "Israel",
+          "Italy",
+          "Japan",
+          "Lithuania",
+          "Netherlands",
+          "Nigeria",
+          "Norway",
+          "Poland",
+          "Portugal",
+          "Sweden",
+          "Switzerland",
+          "United Arab Emirates"
+        ],
+        "aliases": {
+          "EIRE": "Ireland",
+          "UK": "United Kingdom",
+          "U.K.": "United Kingdom",
+          "U K": "United Kingdom",
+          "USA": "United States",
+          "US": "United States",
+          "U.S.A.": "United States",
+          "RSA": "South Africa",
+          "UAE": "United Arab Emirates",
+          "U.E.": "United Arab Emirates"
+        },
+        "alias_rule": "strip, title-case, then apply the alias map",
+        "on_unknown_value": "flag for review; never silently drop",
+        "basis": "domain",
+        "evidence_from_report": {
+          "report_path": "statistics.cardinality.Country.n_unique"
+        }
+      },
+      "reference": {
+        "canonical_countries": [
+          "Australia",
+          "Austria",
+          "Bahrain",
+          "Belgium",
+          "Channel Islands",
+          "Cyprus",
+          "Denmark",
+          "Finland",
+          "France",
+          "Germany",
+          "Greece",
+          "Iceland",
+          "Ireland",
+          "Israel",
+          "Italy",
+          "Japan",
+          "Lithuania",
+          "Netherlands",
+          "Nigeria",
+          "Norway",
+          "Poland",
+          "Portugal",
+          "Spain",
+          "Sweden",
+          "Switzerland",
+          "United Arab Emirates",
+          "United Kingdom",
+          "United States"
+        ],
+        "corroborated_by_report": {
+          "n_unique_in_report": 28,
+          "n_reference_values": 28,
+          "values_seen_in_report": [
+            "Australia",
+            "Belgium",
+            "France",
+            "Germany",
+            "Ireland",
+            "Spain",
+            "United Kingdom",
+            "United States"
+          ]
+        }
+      },
+      "constraints": [
+        {
+          "constraint_id": "country-type",
+          "kind": "type",
+          "severity": "hard",
+          "rule": "Country is text",
+          "message": "Country is a geographic label.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Country.inferred_dtype"
+          }
+        },
+        {
+          "constraint_id": "country-trim",
+          "kind": "format",
+          "severity": "review",
+          "rule": "trim(Country) == Country",
+          "message": "Country names carry no leading/trailing whitespace.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "country-case",
+          "kind": "format",
+          "severity": "review",
+          "rule": "Country is title case ('United Kingdom', not 'UNITED KINGDOM')",
+          "message": "Country canonicalises to title case.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.Country.top_values"
+          }
+        },
+        {
+          "constraint_id": "country-pattern",
+          "kind": "format",
+          "severity": "hard",
+          "rule": "Country matches ^[A-Z][A-Za-z .'\\-]{1,29}$",
+          "message": "Country names are letters plus space/dot/apostrophe/hyphen.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.Country.top_values"
+          }
+        },
+        {
+          "constraint_id": "country-alias",
+          "kind": "consistency",
+          "severity": "review",
+          "rule": "legacy spellings map to canonical names (EIRE->Ireland, USA->United States, plus the remaining alias map entries)",
+          "message": "Alias spellings denote real countries; normalise, do not drop.",
+          "basis": "domain"
+        },
+        {
+          "constraint_id": "country-cardinality",
+          "kind": "cardinality",
+          "severity": "hard",
+          "rule": "n_unique(Country) <= 40",
+          "message": "Country stays low-cardinality (observed 28; new distinct values beyond the reference set are flagged).",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "statistics.cardinality.Country.n_unique"
+          }
+        },
+        {
+          "constraint_id": "country-null",
+          "kind": "nullability",
+          "severity": "hard",
+          "rule": "Country IS NOT NULL",
+          "message": "Country is never missing in the profiled data.",
+          "basis": "observed",
+          "observed_violations": 0,
+          "evidence_from_report": {
+            "report_path": "metadata.fields.Country.n_null"
+          }
+        },
+        {
+          "constraint_id": "country-pii",
+          "kind": "privacy",
+          "severity": "info",
+          "rule": "Country is a quasi-identifier: safe for grouping, watch k-anonymity in small cells",
+          "message": "Geography only identifies in combination.",
+          "basis": "observed",
+          "evidence_from_report": {
+            "report_path": "flags.pii_columns"
+          }
+        }
+      ],
+      "observed": {
+        "n_rows": 100000,
+        "n_null": 0,
+        "null_pct": 0.0,
+        "n_unique": 28,
+        "inferred_dtype": "string",
+        "semantic_type": "country",
+        "is_mixed_type": false,
+        "sample_values": [
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom",
+          "United Kingdom"
+        ]
+      },
+      "expected_post_clean": {
+        "n_rows": 100000,
+        "n_null_max": 0,
+        "n_unknown_after_normalisation_max": 0,
+        "n_unique_after_normalisation_max": 28,
+        "storage": "string"
+      }
+    }
+  },
+  "column_order": [
+    "InvoiceNo",
+    "StockCode",
+    "Description",
+    "Quantity",
+    "InvoiceDate",
+    "UnitPrice",
+    "CustomerID",
+    "Country"
+  ],
+  "cleaning_plan": [
+    {
+      "step": 1,
+      "operation": "strip_whitespace",
+      "columns": [
+        "StockCode",
+        "Description",
+        "Country"
+      ],
+      "mandated_by": [
+        "StockCode.format.trim_required",
+        "Description.format.trim_required",
+        "Country.format.trim_required"
+      ],
+      "evidence": "18717 padded Description values; StockCode case-variant groups whose members differ by padding ('85036B' vs '85036b' families aside)."
+    },
+    {
+      "step": 2,
+      "operation": "normalise_case",
+      "columns": [
+        "StockCode",
+        "Description",
+        "Country"
+      ],
+      "mandated_by": [
+        "StockCode.format.case",
+        "Description.format.case",
+        "Country.format.case"
+      ],
+      "evidence": "90 StockCode + 31 Description value groups differing only by case."
+    },
+    {
+      "step": 3,
+      "operation": "normalise_country_aliases",
+      "columns": [
+        "Country"
+      ],
+      "mandated_by": [
+        "Country.allowed_values.aliases"
+      ],
+      "evidence": "Legacy spellings in this dataset family ('EIRE', 'USA') denote 'Ireland' / 'United States'."
+    },
+    {
+      "step": 4,
+      "operation": "parse_datetimes",
+      "columns": [
+        "InvoiceDate"
+      ],
+      "mandated_by": [
+        "InvoiceDate.format.pattern"
+      ],
+      "evidence": "InvoiceDate must parse as '%Y-%m-%d %H:%M:%S', second resolution, tz-naive."
+    },
+    {
+      "step": 5,
+      "operation": "cast_nullable_integer",
+      "columns": [
+        "CustomerID"
+      ],
+      "mandated_by": [
+        "CustomerID.storage.expected_storage_type"
+      ],
+      "evidence": "CustomerID reads as float64 ('12346.0') because of NaNs; expected storage is nullable Int64."
+    },
+    {
+      "step": 6,
+      "operation": "impute_description_from_stockcode",
+      "columns": [
+        "Description"
+      ],
+      "mandated_by": [
+        "Description.null_policy.action",
+        "StockCode.reference.description_lookup"
+      ],
+      "evidence": "408 Description gaps (0.41%) are imputable from the StockCode->Description lookup; all other rows map 1:1 after case/whitespace normalisation."
+    },
+    {
+      "step": 7,
+      "operation": "derive_line_columns",
+      "columns": [
+        "LineValue",
+        "IsCancellation",
+        "IsReturn",
+        "IsGiveaway"
+      ],
+      "mandated_by": [
+        "derived_columns"
+      ],
+      "evidence": "Revenue, cancellation and return analytics require signed line values and line-type flags."
+    }
+  ],
+  "validation": {
+    "checks": [
+      {
+        "check_id": "every-column-has-schema",
+        "passed": true,
+        "detail": "8/8 columns covered: ['Country', 'CustomerID', 'Description', 'InvoiceDate', 'InvoiceNo', 'Quantity', 'StockCode', 'UnitPrice']"
+      },
+      {
+        "check_id": "every-column-has-expected-dtype",
+        "passed": true,
+        "detail": "all columns declare a concrete expected_dtype"
+      },
+      {
+        "check_id": "InvoiceNo-family-accounting",
+        "passed": true,
+        "detail": "100000 rows across 2 families vs 100000 non-null rows"
+      },
+      {
+        "check_id": "StockCode-family-accounting",
+        "passed": true,
+        "detail": "100000 rows across 4 families vs 100000 non-null rows"
+      },
+      {
+        "check_id": "CustomerID-family-accounting",
+        "passed": true,
+        "detail": "68222 rows across 1 families vs 68222 non-null rows"
+      },
+      {
+        "check_id": "every-column-has-value-domain",
+        "passed": true,
+        "detail": "all columns carry a concrete value domain (range / families / pattern / allowed values)"
+      },
+      {
+        "check_id": "no-placeholder-rules",
+        "passed": true,
+        "detail": "no rule text is a stub"
+      }
+    ],
+    "all_passed": true,
+    "n_columns": 8,
+    "n_constraints": 47,
+    "constraints_by_severity": {
+      "hard": 28,
+      "review": 16,
+      "info": 3
+    },
+    "rules_by_basis": {
+      "observed": 32,
+      "domain": 13,
+      "derived": 2
+    }
+  }
+}
