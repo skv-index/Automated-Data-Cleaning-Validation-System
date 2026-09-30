@@ -1,0 +1,745 @@
+{
+  "module": "module3_validation",
+  "artifact": "validation_report",
+  "generated_at": "2026-09-30T13:01:01+00:00",
+  "source": {
+    "input": "D:\\cadetx\\module2_cleaning\\cleaned_data.csv",
+    "n_rows": 98918,
+    "contamination": 0.01,
+    "classifier_sample_n": 5000
+  },
+  "rules": {
+    "defined": 20,
+    "failed": 9,
+    "per_rule": {
+      "unitprice_negative": {
+        "severity": "hard",
+        "category": "numeric_range",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "unitprice_above_cap": {
+        "severity": "hard",
+        "category": "numeric_range",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "quantity_zero": {
+        "severity": "hard",
+        "category": "numeric_range",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "quantity_out_of_bounds": {
+        "severity": "hard",
+        "category": "numeric_range",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "quantity_bulk": {
+        "severity": "review",
+        "category": "numeric_outlier",
+        "n_violations": 30,
+        "violation_pct": 0.0303
+      },
+      "quantity_atypical": {
+        "severity": "info",
+        "category": "numeric_outlier",
+        "n_violations": 5299,
+        "violation_pct": 5.357
+      },
+      "unitprice_premium": {
+        "severity": "review",
+        "category": "numeric_outlier",
+        "n_violations": 13,
+        "violation_pct": 0.0131
+      },
+      "linevalue_extreme": {
+        "severity": "review",
+        "category": "numeric_outlier",
+        "n_violations": 6,
+        "violation_pct": 0.0061
+      },
+      "unitprice_giveaway": {
+        "severity": "info",
+        "category": "numeric_outlier",
+        "n_violations": 593,
+        "violation_pct": 0.5995
+      },
+      "country_unknown": {
+        "severity": "hard",
+        "category": "categorical",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "country_rare": {
+        "severity": "review",
+        "category": "categorical",
+        "n_violations": 7,
+        "violation_pct": 0.0071
+      },
+      "customerid_out_of_block": {
+        "severity": "hard",
+        "category": "categorical",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "invoiceno_format": {
+        "severity": "hard",
+        "category": "format",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "stockcode_format": {
+        "severity": "hard",
+        "category": "format",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "description_missing_or_blank": {
+        "severity": "review",
+        "category": "format",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "invoicedate_out_of_window": {
+        "severity": "hard",
+        "category": "format",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "return_without_cancellation": {
+        "severity": "review",
+        "category": "cross_field",
+        "n_violations": 186,
+        "violation_pct": 0.188
+      },
+      "cancellation_without_return": {
+        "severity": "hard",
+        "category": "cross_field",
+        "n_violations": 0,
+        "violation_pct": 0.0
+      },
+      "duplicate_line_key": {
+        "severity": "review",
+        "category": "cross_field",
+        "n_violations": 2002,
+        "violation_pct": 2.0239
+      },
+      "guest_high_value": {
+        "severity": "review",
+        "category": "cross_field",
+        "n_violations": 17,
+        "violation_pct": 0.0172
+      }
+    },
+    "detail_file": "module3_validation/rule_violations_sample.json",
+    "passed": 11
+  },
+  "errors": {
+    "n_impossible": 0,
+    "n_suspicious": 9,
+    "impossible": [],
+    "suspicious": [
+      {
+        "finding_id": "numeric_outlier:quantity_bulk",
+        "rule_id": "quantity_bulk",
+        "category": "numeric_outlier",
+        "description": "|Quantity| > 1000: plausible wholesale/bulk order, must be reviewed not dropped.",
+        "n_rows": 30,
+        "violation_pct": 0.0303,
+        "row_positions_sample": [
+          3125,
+          7124,
+          7221,
+          7222,
+          7223,
+          7224,
+          17183,
+          21873,
+          23434,
+          24542,
+          25712,
+          33012,
+          43024,
+          43027,
+          43092,
+          46403,
+          46406,
+          47110,
+          53662,
+          54226,
+          54321,
+          54322,
+          55723,
+          65618,
+          65619
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "numeric_outlier:quantity_atypical",
+        "rule_id": "quantity_atypical",
+        "category": "numeric_outlier",
+        "description": "Quantity outside the plausible 3x-IQR band [-20, 29]: ordinary retail spread tail.",
+        "n_rows": 5299,
+        "violation_pct": 5.357,
+        "row_positions_sample": [
+          3,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          94,
+          95,
+          105,
+          121,
+          134,
+          146,
+          147,
+          174
+        ],
+        "severity": "medium"
+      },
+      {
+        "finding_id": "numeric_outlier:unitprice_premium",
+        "rule_id": "unitprice_premium",
+        "category": "numeric_outlier",
+        "description": "UnitPrice > 1000: large-ticket price, verify against the source system.",
+        "n_rows": 13,
+        "violation_pct": 0.0131,
+        "row_positions_sample": [
+          9215,
+          22733,
+          64211,
+          64212,
+          65197,
+          65499,
+          65542,
+          65543,
+          78034,
+          90405,
+          92648,
+          92649,
+          94566
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "numeric_outlier:linevalue_extreme",
+        "rule_id": "linevalue_extreme",
+        "category": "numeric_outlier",
+        "description": "|LineValue| > 10000: extreme signed line total, verify before trusting revenue.",
+        "n_rows": 6,
+        "violation_pct": 0.0061,
+        "row_positions_sample": [
+          64211,
+          64212,
+          65197,
+          65542,
+          92648,
+          92649
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "numeric_outlier:unitprice_giveaway",
+        "rule_id": "unitprice_giveaway",
+        "category": "numeric_outlier",
+        "description": "UnitPrice == 0: adjustment/giveaway line, keep flagged and exclude from revenue.",
+        "n_rows": 593,
+        "violation_pct": 0.5995,
+        "row_positions_sample": [
+          263,
+          283,
+          284,
+          462,
+          3077,
+          3124,
+          3125,
+          3131,
+          3687,
+          4233,
+          4471,
+          4499,
+          4607,
+          5833,
+          6299,
+          6476,
+          6477,
+          6497,
+          6502,
+          6702,
+          6832,
+          7123,
+          7124,
+          7478,
+          8467
+        ],
+        "severity": "medium"
+      },
+      {
+        "finding_id": "categorical:country_rare",
+        "rule_id": "country_rare",
+        "category": "categorical",
+        "description": "Country with <= 5 rows in the file: k-anonymity micro-segment, watch small cells.",
+        "n_rows": 7,
+        "violation_pct": 0.0071,
+        "row_positions_sample": [
+          126,
+          6297,
+          6298,
+          80991,
+          80992,
+          87275,
+          93098
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "cross_field:return_without_cancellation",
+        "rule_id": "return_without_cancellation",
+        "category": "cross_field",
+        "description": "Quantity < 0 but InvoiceNo lacks the C prefix: return/credit without a cancellation event.",
+        "n_rows": 186,
+        "violation_pct": 0.188,
+        "row_positions_sample": [
+          263,
+          283,
+          284,
+          462,
+          3077,
+          3125,
+          3131,
+          4233,
+          4471,
+          4499,
+          6477,
+          6497,
+          6832,
+          7124,
+          7478,
+          8467,
+          9216,
+          9573,
+          10413,
+          11834,
+          12094,
+          12156,
+          14299,
+          15683,
+          15708
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "cross_field:duplicate_line_key",
+        "rule_id": "duplicate_line_key",
+        "category": "cross_field",
+        "description": "Duplicated (InvoiceNo, StockCode, InvoiceDate): same product stamped twice on one invoice.",
+        "n_rows": 2002,
+        "violation_pct": 2.0239,
+        "row_positions_sample": [
+          289,
+          299,
+          371,
+          372,
+          385,
+          386,
+          622,
+          635,
+          645,
+          662,
+          716,
+          719,
+          722,
+          723,
+          734,
+          752,
+          754,
+          771,
+          785,
+          799,
+          801,
+          802,
+          804,
+          808,
+          809
+        ],
+        "severity": "high"
+      },
+      {
+        "finding_id": "cross_field:guest_high_value",
+        "rule_id": "guest_high_value",
+        "category": "cross_field",
+        "description": "Guest order (null CustomerID) with |LineValue| > 1000: unattributed high-value line.",
+        "n_rows": 17,
+        "violation_pct": 0.0172,
+        "row_positions_sample": [
+          64211,
+          64212,
+          65197,
+          65499,
+          65542,
+          65543,
+          78034,
+          79683,
+          79723,
+          89910,
+          89925,
+          89986,
+          89987,
+          90050,
+          90405,
+          92648,
+          92649
+        ],
+        "severity": "high"
+      }
+    ]
+  },
+  "drift": {
+    "year_a": 2009,
+    "year_b": 2010,
+    "n_a": 44722,
+    "n_b": 46714,
+    "excluded": {
+      "2011": 7482,
+      "reason": "stub year (first 9 days of January only) - not comparable to full years"
+    },
+    "year_counts": {
+      "2010": 46714,
+      "2009": 44722,
+      "2011": 7482
+    },
+    "thresholds": {
+      "watch_gte": 0.1,
+      "alert_gte": 0.25
+    },
+    "metrics": [
+      {
+        "metric": "Quantity.median",
+        "a": 2.0,
+        "b": 2.0,
+        "rel_change": 0.0,
+        "band": "none"
+      },
+      {
+        "metric": "Quantity.mean",
+        "a": 9.359375698761236,
+        "b": 9.314787858029712,
+        "rel_change": -0.004763975949531002,
+        "band": "none"
+      },
+      {
+        "metric": "Quantity.std",
+        "a": 60.637594904717076,
+        "b": 60.93413572146581,
+        "rel_change": 0.004890378934301414,
+        "band": "none"
+      },
+      {
+        "metric": "UnitPrice.median",
+        "a": 2.57,
+        "b": 2.55,
+        "rel_change": -0.007782101167315182,
+        "band": "none"
+      },
+      {
+        "metric": "UnitPrice.mean",
+        "a": 4.406115111130987,
+        "b": 5.935526608725436,
+        "rel_change": 0.3471111078625158,
+        "band": "alert"
+      },
+      {
+        "metric": "UnitPrice.std",
+        "a": 21.774483609291828,
+        "b": 133.33017080296898,
+        "rel_change": 5.123229978509019,
+        "band": "alert"
+      },
+      {
+        "metric": "LineValue.median",
+        "a": 8.65,
+        "b": 8.5,
+        "rel_change": -0.017341040462427786,
+        "band": "none"
+      },
+      {
+        "metric": "LineValue.mean",
+        "a": 17.81334689861813,
+        "b": 19.619989510639208,
+        "rel_change": 0.10142072808121362,
+        "band": "watch"
+      },
+      {
+        "metric": "LineValue.std",
+        "a": 57.27410752146409,
+        "b": 153.38846021770294,
+        "rel_change": 1.6781466679374963,
+        "band": "alert"
+      },
+      {
+        "metric": "share_return_quantity_lt_0",
+        "a": 0.0247,
+        "b": 0.0201,
+        "rel_change": -0.185,
+        "band": "watch"
+      },
+      {
+        "metric": "share_giveaway_unitprice_eq_0",
+        "a": 0.0057,
+        "b": 0.0067,
+        "rel_change": 0.1705,
+        "band": "watch"
+      },
+      {
+        "metric": "share_guest_customerid_null",
+        "a": 0.3007,
+        "b": 0.3437,
+        "rel_change": 0.1432,
+        "band": "watch"
+      },
+      {
+        "metric": "share_cancellation",
+        "a": 0.0227,
+        "b": 0.0184,
+        "rel_change": -0.1891,
+        "band": "watch"
+      },
+      {
+        "metric": "share_uk",
+        "a": 0.9471,
+        "b": 0.9397,
+        "rel_change": -0.0078,
+        "band": "none"
+      },
+      {
+        "metric": "n_rows",
+        "a": 44722,
+        "b": 46714,
+        "rel_change": 0.044541836232726624,
+        "band": "none"
+      }
+    ],
+    "max_abs_rel_change": 5.1232,
+    "verdict": "alert"
+  },
+  "anomalies": {
+    "models": {
+      "isolation_forest": {
+        "n_estimators": 200,
+        "contamination": 0.01,
+        "random_state": 42,
+        "method": "sklearn.ensemble.IsolationForest",
+        "n_flagged": 988,
+        "score": "if_score = -decision_function (higher = more anomalous)"
+      },
+      "lof": {
+        "n_neighbors": 20,
+        "contamination": 0.01,
+        "fit": "deduplicated feature combinations (3379 unique of 98918 rows)",
+        "method": "sklearn.neighbors.LocalOutlierFactor",
+        "n_flagged": 58,
+        "score": "lof_score = -negative_outlier_factor_ (higher = more anomalous)"
+      },
+      "n_both_flagged": 53,
+      "autoencoder": "Autoencoder skipped by design: on a 2-column numeric frame a deep reconstruction model adds no detection geometry beyond IsolationForest (global isolation) + LOF (local density), while adding a heavy torch/TensorFlow dependency and non-determinism. Revisit only if high-dimensional engineered features need joint reconstruction."
+    },
+    "scaler": {
+      "columns": [
+        "Quantity",
+        "UnitPrice"
+      ],
+      "mean_": {
+        "Quantity": 9.361835055298329,
+        "UnitPrice": 5.404242402798278
+      },
+      "scale_": {
+        "Quantity": 59.023270570083696,
+        "UnitPrice": 119.36761090370065
+      },
+      "n_rows_total": 98918,
+      "n_rows_scored": 98918,
+      "n_rows_dropped_non_numeric": 0
+    },
+    "top_rows": [
+      {
+        "row_id": 92648,
+        "csv_line": 92650,
+        "top_by": "both",
+        "if_score": 0.1031,
+        "lof_score": 73.1768,
+        "values": {
+          "InvoiceNo": "C540117",
+          "StockCode": "AMAZONFEE",
+          "Description": "AMAZON FEE",
+          "Quantity": -1,
+          "InvoiceDate": "2011-01-05 09:55:00",
+          "UnitPrice": 16888.02,
+          "CustomerID": null,
+          "Country": "United Kingdom",
+          "LineValue": -16888.02,
+          "IsCancellation": true,
+          "IsReturn": true,
+          "IsGiveaway": false
+        }
+      },
+      {
+        "row_id": 92649,
+        "csv_line": 92651,
+        "top_by": "both",
+        "if_score": 0.1031,
+        "lof_score": 71.5669,
+        "values": {
+          "InvoiceNo": "C540118",
+          "StockCode": "AMAZONFEE",
+          "Description": "AMAZON FEE",
+          "Quantity": -1,
+          "InvoiceDate": "2011-01-05 09:57:00",
+          "UnitPrice": 16453.71,
+          "CustomerID": null,
+          "Country": "United Kingdom",
+          "LineValue": -16453.71,
+          "IsCancellation": true,
+          "IsReturn": true,
+          "IsGiveaway": false
+        }
+      },
+      {
+        "row_id": 65542,
+        "csv_line": 65544,
+        "top_by": "both",
+        "if_score": 0.102,
+        "lof_score": 60.7714,
+        "values": {
+          "InvoiceNo": "C537651",
+          "StockCode": "AMAZONFEE",
+          "Description": "AMAZON FEE",
+          "Quantity": -1,
+          "InvoiceDate": "2010-12-07 15:49:00",
+          "UnitPrice": 13541.33,
+          "CustomerID": null,
+          "Country": "United Kingdom",
+          "LineValue": -13541.33,
+          "IsCancellation": true,
+          "IsReturn": true,
+          "IsGiveaway": false
+        }
+      },
+      {
+        "row_id": 64211,
+        "csv_line": 64213,
+        "top_by": "both",
+        "if_score": 0.102,
+        "lof_score": 60.7714,
+        "values": {
+          "InvoiceNo": "C537630",
+          "StockCode": "AMAZONFEE",
+          "Description": "AMAZON FEE",
+          "Quantity": -1,
+          "InvoiceDate": "2010-12-07 15:04:00",
+          "UnitPrice": 13541.33,
+          "CustomerID": null,
+          "Country": "United Kingdom",
+          "LineValue": -13541.33,
+          "IsCancellation": true,
+          "IsReturn": true,
+          "IsGiveaway": false
+        }
+      },
+      {
+        "row_id": 64212,
+        "csv_line": 64214,
+        "top_by": "lof",
+        "if_score": 0.092,
+        "lof_score": 60.7714,
+        "values": {
+          "InvoiceNo": "537632",
+          "StockCode": "AMAZONFEE",
+          "Description": "AMAZON FEE",
+          "Quantity": 1,
+          "InvoiceDate": "2010-12-07 15:08:00",
+          "UnitPrice": 13541.33,
+          "CustomerID": null,
+          "Country": "United Kingdom",
+          "LineValue": 13541.33,
+          "IsCancellation": false,
+          "IsReturn": false,
+          "IsGiveaway": false
+        }
+      }
+    ],
+    "detail_file": "module3_validation/anomalies_sample.json"
+  },
+  "columns": {
+    "n_checked": 10,
+    "n_match": 10,
+    "n_mismatch": 0,
+    "mismatched_columns": [],
+    "detail_file": "module3_validation/column_classification.json"
+  },
+  "scores": {
+    "error": {
+      "error_severity": 1.25,
+      "scale": "0-100 penalty (0 = clean)",
+      "weights": {
+        "hard": 1.0,
+        "review": 0.3,
+        "info": 0.1
+      },
+      "hard_rows": 0,
+      "review_rows": 2240,
+      "info_rows": 5679
+    },
+    "anomaly": {
+      "anomaly_severity": 0.0536,
+      "scale": "0-100 penalty (0 = clean)",
+      "if_flag_rate": 0.01,
+      "lof_flag_rate": 0.0006,
+      "both_flag_rate": 0.0005,
+      "n_if_flagged": 988,
+      "n_lof_flagged": 58,
+      "n_both_flagged": 53
+    },
+    "health": {
+      "health_score": 84.53,
+      "scale": "0-100 quality (100 = perfect)",
+      "weights": {
+        "validity": 0.4,
+        "anomaly": 0.25,
+        "consistency": 0.2,
+        "stability": 0.15
+      },
+      "components": {
+        "validity": 100.0,
+        "anomaly": 99.95,
+        "consistency": 97.74,
+        "stability": 0.0
+      },
+      "grade": "Watch"
+    }
+  },
+  "verdict": {
+    "grade": "Watch",
+    "health_score": 84.53,
+    "recommended_actions": [
+      "Triage 8153 suspicious-row events (9 patterns) before trusting revenue cuts.",
+      "Drift ALERT 2009->2010 (UnitPrice/LineValue spread exploded on AMAZONFEE lines): segment 2010 fee/adjustment codes out of like-for-like revenue before modelling.",
+      "Review 53 high-confidence anomalies (both models agree) - see anomalies_sample.json."
+    ]
+  }
+}

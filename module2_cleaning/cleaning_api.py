@@ -207,7 +207,7 @@ def run_cleaning_pipeline(
 
     cleaned_path = Path(cleaned_path)
     cleaned_path.parent.mkdir(parents=True, exist_ok=True)
-    scaled.to_csv(cleaned_path, index=False)
+    scaled.to_csv(cleaned_path, index=False, lineterminator="\n")
 
     impute_stage = next(
         (s for s in clean_log["stages"]

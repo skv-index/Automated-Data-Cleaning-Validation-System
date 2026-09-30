@@ -1,0 +1,745 @@
+{
+  "module": "module3_validation",
+  "artifact": "rule_violations_sample",
+  "generated_at": "2026-09-30T10:53:03+00:00",
+  "source": {
+    "input": "D:\\cadetx\\module2_cleaning\\cleaned_data.csv",
+    "schema": "D:\\cadetx\\module2_cleaning\\expected_schema.json",
+    "n_rows": 98918,
+    "max_examples_per_rule": 3
+  },
+  "rules_defined": 20,
+  "rules_failed": 9,
+  "rules_passed": 11,
+  "n_flagged_rows_distinct": 7632,
+  "violations_by_category": {
+    "numeric_range": 0,
+    "numeric_outlier": 5941,
+    "categorical": 7,
+    "format": 0,
+    "cross_field": 2205
+  },
+  "violations_by_severity": {
+    "hard": 0,
+    "review": 2261,
+    "info": 5892
+  },
+  "note": "Hard rules with status=pass held on the cleaned data (cleaning worked); review/info rules with status=fail show REAL cleaned rows for human triage - never synthetic. row_id is the 0-based position in cleaned_data.csv; csv_line is the 1-based file line (header = line 1).",
+  "rules": [
+    {
+      "rule_id": "unitprice_negative",
+      "category": "numeric_range",
+      "severity": "hard",
+      "description": "UnitPrice < 0: a negative price is physically impossible (data error).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "unitprice_above_cap",
+      "category": "numeric_range",
+      "severity": "hard",
+      "description": "UnitPrice > 20000: above the Sprint 4 hard cap (data error).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "quantity_zero",
+      "category": "numeric_range",
+      "severity": "hard",
+      "description": "Quantity == 0: a zero-unit line item is physically meaningless.",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "quantity_out_of_bounds",
+      "category": "numeric_range",
+      "severity": "hard",
+      "description": "Quantity outside [-10000, 10000]: outside the Sprint 4 hard bounds.",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "quantity_bulk",
+      "category": "numeric_outlier",
+      "severity": "review",
+      "description": "|Quantity| > 1000: plausible wholesale/bulk order, must be reviewed not dropped.",
+      "n_violations": 30,
+      "violation_pct": 0.0303,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 3125,
+          "csv_line": 3127,
+          "values": {
+            "InvoiceNo": "489660",
+            "StockCode": "35956",
+            "Description": "LOST",
+            "Quantity": -1043,
+            "InvoiceDate": "2009-12-01 17:43:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 7124,
+          "csv_line": 7126,
+          "values": {
+            "InvoiceNo": "490016",
+            "StockCode": "21982",
+            "Description": "PACK OF 12 SUKI TISSUES",
+            "Quantity": -1012,
+            "InvoiceDate": "2009-12-03 12:30:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 7221,
+          "csv_line": 7223,
+          "values": {
+            "InvoiceNo": "490018",
+            "StockCode": "21981",
+            "Description": "PACK OF 12 WOODLAND TISSUES",
+            "Quantity": 4320,
+            "InvoiceDate": "2009-12-03 12:31:00",
+            "UnitPrice": 0.25,
+            "CustomerID": 17940.0,
+            "Country": "United Kingdom",
+            "LineValue": 1080.0,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "quantity_atypical",
+      "category": "numeric_outlier",
+      "severity": "info",
+      "description": "Quantity outside the plausible 3x-IQR band [-20, 29]: ordinary retail spread tail.",
+      "n_violations": 5299,
+      "violation_pct": 5.357,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 3,
+          "csv_line": 5,
+          "values": {
+            "InvoiceNo": "489434",
+            "StockCode": "22041",
+            "Description": "RECORD FRAME 7\" SINGLE SIZE",
+            "Quantity": 48,
+            "InvoiceDate": "2009-12-01 07:45:00",
+            "UnitPrice": 2.1,
+            "CustomerID": 13085.0,
+            "Country": "United Kingdom",
+            "LineValue": 100.8,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 55,
+          "csv_line": 57,
+          "values": {
+            "InvoiceNo": "489438",
+            "StockCode": "21252",
+            "Description": "SET OF MEADOW FLOWER STICKERS",
+            "Quantity": 30,
+            "InvoiceDate": "2009-12-01 09:24:00",
+            "UnitPrice": 1.69,
+            "CustomerID": 18102.0,
+            "Country": "United Kingdom",
+            "LineValue": 50.7,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 56,
+          "csv_line": 58,
+          "values": {
+            "InvoiceNo": "489438",
+            "StockCode": "21100",
+            "Description": "CHARLIE AND LOLA CHARLOTTE BAG",
+            "Quantity": 30,
+            "InvoiceDate": "2009-12-01 09:24:00",
+            "UnitPrice": 1.15,
+            "CustomerID": 18102.0,
+            "Country": "United Kingdom",
+            "LineValue": 34.5,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "unitprice_premium",
+      "category": "numeric_outlier",
+      "severity": "review",
+      "description": "UnitPrice > 1000: large-ticket price, verify against the source system.",
+      "n_violations": 13,
+      "violation_pct": 0.0131,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 9215,
+          "csv_line": 9217,
+          "values": {
+            "InvoiceNo": "C490129",
+            "StockCode": "M",
+            "Description": "MANUAL",
+            "Quantity": -1,
+            "InvoiceDate": "2009-12-03 18:26:00",
+            "UnitPrice": 1998.49,
+            "CustomerID": 15482.0,
+            "Country": "United Kingdom",
+            "LineValue": -1998.49,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 22733,
+          "csv_line": 22735,
+          "values": {
+            "InvoiceNo": "491176",
+            "StockCode": "M",
+            "Description": "MANUAL",
+            "Quantity": 1,
+            "InvoiceDate": "2009-12-10 11:50:00",
+            "UnitPrice": 1213.02,
+            "CustomerID": 13091.0,
+            "Country": "United Kingdom",
+            "LineValue": 1213.02,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 64211,
+          "csv_line": 64213,
+          "values": {
+            "InvoiceNo": "C537630",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": -1,
+            "InvoiceDate": "2010-12-07 15:04:00",
+            "UnitPrice": 13541.33,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -13541.33,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "linevalue_extreme",
+      "category": "numeric_outlier",
+      "severity": "review",
+      "description": "|LineValue| > 10000: extreme signed line total, verify before trusting revenue.",
+      "n_violations": 6,
+      "violation_pct": 0.0061,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 64211,
+          "csv_line": 64213,
+          "values": {
+            "InvoiceNo": "C537630",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": -1,
+            "InvoiceDate": "2010-12-07 15:04:00",
+            "UnitPrice": 13541.33,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -13541.33,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 64212,
+          "csv_line": 64214,
+          "values": {
+            "InvoiceNo": "537632",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": 1,
+            "InvoiceDate": "2010-12-07 15:08:00",
+            "UnitPrice": 13541.33,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": 13541.33,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 65197,
+          "csv_line": 65199,
+          "values": {
+            "InvoiceNo": "C537644",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": -1,
+            "InvoiceDate": "2010-12-07 15:34:00",
+            "UnitPrice": 13474.79,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -13474.79,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "unitprice_giveaway",
+      "category": "numeric_outlier",
+      "severity": "info",
+      "description": "UnitPrice == 0: adjustment/giveaway line, keep flagged and exclude from revenue.",
+      "n_violations": 593,
+      "violation_pct": 0.5995,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 263,
+          "csv_line": 265,
+          "values": {
+            "InvoiceNo": "489464",
+            "StockCode": "21733",
+            "Description": "85123A MIXED",
+            "Quantity": -96,
+            "InvoiceDate": "2009-12-01 10:52:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 283,
+          "csv_line": 285,
+          "values": {
+            "InvoiceNo": "489463",
+            "StockCode": "71477",
+            "Description": "SHORT",
+            "Quantity": -240,
+            "InvoiceDate": "2009-12-01 10:52:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 284,
+          "csv_line": 286,
+          "values": {
+            "InvoiceNo": "489467",
+            "StockCode": "85123A",
+            "Description": "21733 MIXED",
+            "Quantity": -192,
+            "InvoiceDate": "2009-12-01 10:53:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "country_unknown",
+      "category": "categorical",
+      "severity": "hard",
+      "description": "Country not in the closed 28-name reference set (unknown value).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "country_rare",
+      "category": "categorical",
+      "severity": "review",
+      "description": "Country with <= 5 rows in the file: k-anonymity micro-segment, watch small cells.",
+      "n_violations": 7,
+      "violation_pct": 0.0071,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 126,
+          "csv_line": 128,
+          "values": {
+            "InvoiceNo": "489444",
+            "StockCode": "POST",
+            "Description": "POSTAGE",
+            "Quantity": 1,
+            "InvoiceDate": "2009-12-01 09:55:00",
+            "UnitPrice": 141.0,
+            "CustomerID": 12636.0,
+            "Country": "United States",
+            "LineValue": 141.0,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 6297,
+          "csv_line": 6299,
+          "values": {
+            "InvoiceNo": "C489881",
+            "StockCode": "21102",
+            "Description": "CANDLE IN JAR COLLAGE , VANILLA",
+            "Quantity": -31,
+            "InvoiceDate": "2009-12-02 16:20:00",
+            "UnitPrice": 2.55,
+            "CustomerID": null,
+            "Country": "Nigeria",
+            "LineValue": -79.05,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 6298,
+          "csv_line": 6300,
+          "values": {
+            "InvoiceNo": "C489881",
+            "StockCode": "72802A",
+            "Description": "ROSE SCENT CANDLE IN JEWELLED BOX",
+            "Quantity": -16,
+            "InvoiceDate": "2009-12-02 16:20:00",
+            "UnitPrice": 4.25,
+            "CustomerID": null,
+            "Country": "Nigeria",
+            "LineValue": -68.0,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "customerid_out_of_block",
+      "category": "categorical",
+      "severity": "hard",
+      "description": "Non-null CustomerID outside the anonymised block [12000, 19000] or fractional.",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "invoiceno_format",
+      "category": "format",
+      "severity": "hard",
+      "description": "InvoiceNo must match ^(\\d{5,7}|C\\d{5,7})$ (C prefix = cancellation event).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "stockcode_format",
+      "category": "format",
+      "severity": "hard",
+      "description": "StockCode must match one of the 4 known families (numeric / suffixed / C-prefixed / service code).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "description_missing_or_blank",
+      "category": "format",
+      "severity": "review",
+      "description": "Description null or blank: product name not captured (should be 0 after cleaning).",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "invoicedate_out_of_window",
+      "category": "format",
+      "severity": "hard",
+      "description": "InvoiceDate unparseable or outside the 2009-01-01..2011-12-31 business window.",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "return_without_cancellation",
+      "category": "cross_field",
+      "severity": "review",
+      "description": "Quantity < 0 but InvoiceNo lacks the C prefix: return/credit without a cancellation event.",
+      "n_violations": 186,
+      "violation_pct": 0.188,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 263,
+          "csv_line": 265,
+          "values": {
+            "InvoiceNo": "489464",
+            "StockCode": "21733",
+            "Description": "85123A MIXED",
+            "Quantity": -96,
+            "InvoiceDate": "2009-12-01 10:52:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 283,
+          "csv_line": 285,
+          "values": {
+            "InvoiceNo": "489463",
+            "StockCode": "71477",
+            "Description": "SHORT",
+            "Quantity": -240,
+            "InvoiceDate": "2009-12-01 10:52:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        },
+        {
+          "row_id": 284,
+          "csv_line": 286,
+          "values": {
+            "InvoiceNo": "489467",
+            "StockCode": "85123A",
+            "Description": "21733 MIXED",
+            "Quantity": -192,
+            "InvoiceDate": "2009-12-01 10:53:00",
+            "UnitPrice": 0.0,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -0.0,
+            "IsCancellation": false,
+            "IsReturn": true,
+            "IsGiveaway": true
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "cancellation_without_return",
+      "category": "cross_field",
+      "severity": "hard",
+      "description": "C-prefixed InvoiceNo but Quantity >= 0: a cancellation must carry a negative quantity.",
+      "n_violations": 0,
+      "violation_pct": 0.0,
+      "status": "pass",
+      "n_examples_shown": 0,
+      "examples": []
+    },
+    {
+      "rule_id": "duplicate_line_key",
+      "category": "cross_field",
+      "severity": "review",
+      "description": "Duplicated (InvoiceNo, StockCode, InvoiceDate): same product stamped twice on one invoice.",
+      "n_violations": 2002,
+      "violation_pct": 2.0239,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 289,
+          "csv_line": 291,
+          "values": {
+            "InvoiceNo": "489488",
+            "StockCode": "22125",
+            "Description": "UNION JACK HOT WATER BOTTLE",
+            "Quantity": 2,
+            "InvoiceDate": "2009-12-01 10:59:00",
+            "UnitPrice": 5.95,
+            "CustomerID": 17238.0,
+            "Country": "United Kingdom",
+            "LineValue": 11.9,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 299,
+          "csv_line": 301,
+          "values": {
+            "InvoiceNo": "489488",
+            "StockCode": "22125",
+            "Description": "UNION JACK HOT WATER BOTTLE",
+            "Quantity": 1,
+            "InvoiceDate": "2009-12-01 10:59:00",
+            "UnitPrice": 5.95,
+            "CustomerID": 17238.0,
+            "Country": "United Kingdom",
+            "LineValue": 5.95,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 371,
+          "csv_line": 373,
+          "values": {
+            "InvoiceNo": "489517",
+            "StockCode": "21791",
+            "Description": "VINTAGE HEADS AND TAILS CARD GAME",
+            "Quantity": 6,
+            "InvoiceDate": "2009-12-01 11:34:00",
+            "UnitPrice": 1.25,
+            "CustomerID": 16329.0,
+            "Country": "United Kingdom",
+            "LineValue": 7.5,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    },
+    {
+      "rule_id": "guest_high_value",
+      "category": "cross_field",
+      "severity": "review",
+      "description": "Guest order (null CustomerID) with |LineValue| > 1000: unattributed high-value line.",
+      "n_violations": 17,
+      "violation_pct": 0.0172,
+      "status": "fail",
+      "n_examples_shown": 3,
+      "examples": [
+        {
+          "row_id": 64211,
+          "csv_line": 64213,
+          "values": {
+            "InvoiceNo": "C537630",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": -1,
+            "InvoiceDate": "2010-12-07 15:04:00",
+            "UnitPrice": 13541.33,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -13541.33,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 64212,
+          "csv_line": 64214,
+          "values": {
+            "InvoiceNo": "537632",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": 1,
+            "InvoiceDate": "2010-12-07 15:08:00",
+            "UnitPrice": 13541.33,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": 13541.33,
+            "IsCancellation": false,
+            "IsReturn": false,
+            "IsGiveaway": false
+          }
+        },
+        {
+          "row_id": 65197,
+          "csv_line": 65199,
+          "values": {
+            "InvoiceNo": "C537644",
+            "StockCode": "AMAZONFEE",
+            "Description": "AMAZON FEE",
+            "Quantity": -1,
+            "InvoiceDate": "2010-12-07 15:34:00",
+            "UnitPrice": 13474.79,
+            "CustomerID": null,
+            "Country": "United Kingdom",
+            "LineValue": -13474.79,
+            "IsCancellation": true,
+            "IsReturn": true,
+            "IsGiveaway": false
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -727,7 +727,7 @@ def run_cleaning(
                                        fuzzy_threshold=fuzzy_threshold)
         full_path = Path(full_out)
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        cleaned.to_csv(full_path, index=False)
+        cleaned.to_csv(full_path, index=False, lineterminator="\n")
         log_path = full_path.with_suffix(".log.json")
         log_path.write_text(json.dumps(log, indent=2, ensure_ascii=False,
                                        default=str), encoding="utf-8")

@@ -1,0 +1,52 @@
+# Sprint 10 - Module 4 pipeline configuration.
+# Everything the orchestrator needs lives here: file paths (relative to the
+# repo root unless absolute), per-module settings, and logging. No setting
+# is hardcoded in orchestrator.py - edit this file, not code, to rerun.
+
+paths:
+  # Raw input workbook (stage inputs for profiling + cleaning).
+  input_xlsx: online_retail_II.xlsx
+  # Versioned Module 2 contract (input to cleaning, not regenerated per run).
+  expected_schema: module2_cleaning/expected_schema.json
+  # Module 1 outputs.
+  profiling_report: module1_profiling/profiling_report.json
+  visuals_dir: module1_profiling/visuals
+  # Module 2 outputs.
+  cleaned_csv: module2_cleaning/cleaned_data.csv
+  cleaning_log: module2_cleaning/cleaning_log.json
+  # Module 3 output.
+  validation_report: module3_validation/validation_report.json
+  # This pipeline's own log file.
+  pipeline_log: module4_pipeline/pipeline.log
+
+profiling:
+  # Max rows read per workbook sheet (0 = all rows; full workbook is >1M).
+  nrows_per_sheet: 50000
+  # Rows sampled in missing_heatmap.png.
+  heatmap_rows: 1000
+
+cleaning:
+  # Imputation pipeline (Sprint 5 design): statistical StockCode lookup
+  # first, then KNNImputer over Quantity/UnitPrice - the KNN stage is a
+  # verified no-op when the numeric columns have no gaps, as in this data.
+  imputation_method: statistical+knn
+  # KNNImputer neighbourhood size (KNN stage).
+  knn_neighbors: 5
+  # Min difflib ratio for near-duplicate description pairs (flagged, kept).
+  fuzzy_threshold: 0.90
+
+validation:
+  # Expected anomaly rate per model (IsolationForest + LOF flag threshold).
+  contamination: 0.01
+  # Cell strings sampled per column by the NLP column classifier.
+  classifier_sample_n: 5000
+
+logging:
+  # One of DEBUG / INFO / WARNING / ERROR.
+  level: INFO
+  # Also emit log lines to stdout (the log file is always written).
+  console: true
+
+pipeline:
+  # Stop at the first failing stage (false = attempt later stages anyway).
+  stop_on_stage_failure: true

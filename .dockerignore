@@ -1,0 +1,20 @@
+# Sprint 11 - keep the build context lean (code + contracts only;
+# datasets and generated outputs enter/leave via mounted volumes).
+.git/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.xlsx
+*.csv
+module1_profiling/visuals/
+module1_profiling/profiling_report.json
+module2_cleaning/cleaned_data.csv
+module2_cleaning/cleaning_log.json
+module2_cleaning/cleaning_sample_diff.json
+module3_validation/*.json
+module3_validation/*.png
+module3_validation/*.md
+module4_pipeline/*.log
+results/
